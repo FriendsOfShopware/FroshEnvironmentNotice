@@ -1,0 +1,9 @@
+# Ignore JetBrains
+.idea/
+
+# Ignore composer vendor files
+vendor/
+
+# Ignore build files
+FroshEnvironmentNotice/
+FroshEnvironmentNotice-*.zip

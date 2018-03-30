@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/plugin.xsd">
+    <label>Environment notices</label>
+    <version>0.0.0</version>
+    <copyright>Friends of Shopware</copyright>
+    <license>MIT</license>
+    <link>https://friendsofshopware.github.io/</link>
+    <author>Joshua Behrens</author>
+    <changelog version="0.0.0">
+        <changes>
+            <![CDATA[
+                <ul>
+                    <li>Initial setup</li>
+                </ul>
+            ]]>
+        </changes>
+    </changelog>
+    <description>
+        <![CDATA[
+            <b>Display notices depending on certain environments</b>
+            <p></p>
+        ]]>
+    </description>
+</plugin>
