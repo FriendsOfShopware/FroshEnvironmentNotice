@@ -6,6 +6,7 @@ use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Plugins_ViewRenderer_Bootstrap;
 use Enlight_Event_EventArgs;
 use FroshEnvironmentNotice\Services\ModifyHtmlText;
+use FroshEnvironmentNotice\Services\NoticeMarkupBuilder;
 
 class NoticeInjection implements SubscriberInterface
 {
@@ -15,13 +16,20 @@ class NoticeInjection implements SubscriberInterface
     private $htmlTextModifier;
 
     /**
+     * @var NoticeMarkupBuilder
+     */
+    private $markupBuilder;
+
+    /**
      * NoticeInjection constructor.
      *
-     * @param ModifyHtmlText $htmlTextModifier
+     * @param ModifyHtmlText      $htmlTextModifier
+     * @param NoticeMarkupBuilder $markupBuilder
      */
-    public function __construct(ModifyHtmlText $htmlTextModifier)
+    public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder)
     {
         $this->htmlTextModifier = $htmlTextModifier;
+        $this->markupBuilder = $markupBuilder;
     }
 
     /**
@@ -46,6 +54,24 @@ class NoticeInjection implements SubscriberInterface
             return;
         }
 
-        $args->setReturn($this->htmlTextModifier->insertAfterTag('body', '<div style="position: fixed;top: 10px;right: 10px;border-radius: 5px;padding: 15px;color: white;background: red;font-weight: bold;z-index: 9999999999;font-size: 1.2em;pointer-events: none;">Das ist eine Stagingumgebung</div>', $args->getReturn()));
+        $args->setReturn(
+            $this->htmlTextModifier->insertAfterTag(
+                'body',
+                $this->markupBuilder->buildNotice([
+                    'position' => 'fixed',
+                    'top' => '10px',
+                    'right' => '10px',
+                    'border-radius' => '5px',
+                    'padding' => '15px',
+                    'color' => 'white',
+                    'background' => 'red',
+                    'font-weight' => 'bold',
+                    'z-index' => '9999999999',
+                    'font-size' => '1.2em',
+                    'pointer-events' => 'none',
+                ], 'Das ist eine Stagingumgebung'),
+                $args->getReturn()
+            )
+        );
     }
 }

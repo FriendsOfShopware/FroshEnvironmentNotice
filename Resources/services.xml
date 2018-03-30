@@ -7,9 +7,11 @@
         <service id="frosh.environment_notice.subscriber.notice_injection" class="FroshEnvironmentNotice\Subscriber\NoticeInjection">
             <tag name="shopware.event_subscriber" />
             <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
+            <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
         </service>
 
         <!-- Services -->
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>
+        <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder"/>
     </services>
 </container>
