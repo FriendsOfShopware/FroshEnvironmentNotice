@@ -2,7 +2,7 @@
 <plugin xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/5.3/engine/Shopware/Components/Plugin/schema/plugin.xsd">
     <label>Environment notices</label>
-    <version>0.0.0</version>
+    <version>1.0.0</version>
     <copyright>Friends of Shopware</copyright>
     <license>MIT</license>
     <link>https://friendsofshopware.github.io/</link>
@@ -16,10 +16,18 @@
             ]]>
         </changes>
     </changelog>
+    <changelog version="1.0.0">
+        <changes>
+            <![CDATA[
+                <ul>
+                    <li>Added badge that is displayed to every page. The badge shows the user this is a staging environment.</li>
+                </ul>
+            ]]>
+        </changes>
+    </changelog>
     <description>
         <![CDATA[
-            <b>Display notices depending on certain environments</b>
-            <p></p>
+            <b>Display notices that this is a staging environment</b>
         ]]>
     </description>
 </plugin>
