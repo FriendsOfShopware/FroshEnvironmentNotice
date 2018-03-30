@@ -1,4 +1,27 @@
 {
+  "name": "frosh/environment-notice",
+  "keywords": [
+    "shopware",
+    "staging",
+    "development",
+    "plugin"
+  ],
+  "authors": [
+    {
+      "name": "Joshua Behrens",
+      "email": "joshua.behrens@niemand.online",
+      "homepage": "https://joshua-behrens.de/"
+    }
+  ],
+  "description": "Output notices when Shopware is in one of specific environments",
+  "license": "MIT",
+  "type": "shopware-plugin",
+  "extra": {
+    "installer-name": "FroshEnvironmentNotice"
+  },
+  "require": {
+    "php" : "^7.0"
+  },
   "require-dev": {
     "friendsofphp/php-cs-fixer": "^2.9"
   },
