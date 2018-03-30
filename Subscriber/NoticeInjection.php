@@ -5,13 +5,29 @@ namespace FroshEnvironmentNotice\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Plugins_ViewRenderer_Bootstrap;
 use Enlight_Event_EventArgs;
+use FroshEnvironmentNotice\Services\ModifyHtmlText;
 
 class NoticeInjection implements SubscriberInterface
 {
     /**
+     * @var ModifyHtmlText
+     */
+    private $htmlTextModifier;
+
+    /**
+     * NoticeInjection constructor.
+     *
+     * @param ModifyHtmlText $htmlTextModifier
+     */
+    public function __construct(ModifyHtmlText $htmlTextModifier)
+    {
+        $this->htmlTextModifier = $htmlTextModifier;
+    }
+
+    /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'Enlight_Plugins_ViewRenderer_FilterRender' => 'injectNotice',
@@ -30,6 +46,6 @@ class NoticeInjection implements SubscriberInterface
             return;
         }
 
-        $args->setReturn(str_replace('</body>', '<div style="position: fixed;top: 10px;right: 10px;border-radius: 5px;padding: 15px;color: white;background: red;font-weight: bold;z-index: 9999999999;font-size: 1.2em;pointer-events: none;">Das ist eine Stagingumgebung</div></body>', $args->getReturn()));
+        $args->setReturn($this->htmlTextModifier->insertAfterTag('body', '<div style="position: fixed;top: 10px;right: 10px;border-radius: 5px;padding: 15px;color: white;background: red;font-weight: bold;z-index: 9999999999;font-size: 1.2em;pointer-events: none;">Das ist eine Stagingumgebung</div>', $args->getReturn()));
     }
 }
