@@ -1,8 +1,13 @@
 <template>
-  <div id="app" class="container-fluid pt-5">
-    <b-alert v-for="alert in alerts" v-bind:variant="alert.variant" v-bind:dismissable="true">
-      {{alert.message}}
-    </b-alert>
+  <div id="app" class="container-fluid py-5">
+    <div class="w-100 sticky-top position-fixed px-4 mt-5">
+      <b-alert v-for="alert in alerts" v-bind:variant="alert.variant" dismissible show>
+        {{alert.message}}
+        <template slot="dismiss">
+          &times;
+        </template>
+      </b-alert>
+    </div>
     <b-navbar fixed="top" class="navbar-light bg-light">
       <b-nav-form>
         <b-button variant="outline-success" size="sm" v-on:click="addNotice" v-bind:disabled="isLoading">
