@@ -51,8 +51,8 @@
                 <b-button variant="outline-success" v-on:click="insertNotice(row.item)" v-if="!row.item.id">
                   Add
                 </b-button>
-                <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-if="!row.item.id">
-                  Delete
+                <b-button variant="outline-danger" v-on:click="resetNotice(row.item)" v-if="row.item.id">
+                  Cancel
                 </b-button>
                 <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-else>
                   Cancel
@@ -112,9 +112,7 @@ export default {
     deleteNotice(notice) {
       axios.post('ajaxDelete', { id: notice.id })
         .then(() => {
-          const notices = this.notices;
-          notices.splice(this.notices.indexOf(notice), 1);
-          this.notices = notices;
+          this.cancelNotice(notice);
         })
         .catch((response) => {
           this.alerts.push({
@@ -125,14 +123,25 @@ export default {
         });
     },
     cancelNotice(notice) {
-      const notices = this.notices;
-      notices.splice(this.notices.indexOf(notice), 1);
-      this.notices = notices;
+      this.notices.splice(this.notices.indexOf(notice), 1);
+    },
+    resetNotice(notice) {
+      axios.get(`ajaxGet?id=${notice.id}`)
+        .then((response) => {
+          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
+        })
+        .catch((response) => {
+          this.alerts.push({
+            variant: 'danger',
+            message: `An error occured while resetting ${notice.name} (${notice.id}). Check the console for further information.`,
+          });
+          console.log(response);
+        });
     },
     insertNotice(notice) {
       axios.post('ajaxInsert', notice)
         .then((response) => {
-          this.notices[this.notices.indexOf(notice)] = response.data.data;
+          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
           this.alerts.push({

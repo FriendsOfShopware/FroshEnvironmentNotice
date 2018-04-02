@@ -17,6 +17,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
     public function getWhitelistedCSRFActions()
     {
         return [
+            'ajaxGet',
             'ajaxList',
             'ajaxInsert',
             'ajaxDelete',
@@ -60,6 +61,34 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
             'success' => true,
             'code' => 200,
             'items' => $this->noticeRepository->findAll(),
+        ]);
+    }
+
+    public function ajaxGetAction()
+    {
+        /** @var Notice $model */
+        $model = null;
+        try {
+            $model = $this->noticeRepository->find($this->Request()->get('id'));
+            if (is_null($model)) {
+                throw new InvalidArgumentException('$model is null');
+            }
+        } catch (Exception $exception) {
+            $this->View()->assign([
+                'success' => false,
+                'data' => [
+                    'message' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(),
+                ],
+                'code' => 404,
+            ]);
+            return;
+        }
+
+        $this->View()->assign([
+            'success' => true,
+            'code' => 200,
+            'data' => $model,
         ]);
     }
 
