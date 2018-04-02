@@ -15,4 +15,10 @@ rm -rf FroshEnvironmentNotice FroshEnvironmentNotice-*.zip
 mkdir -p FroshEnvironmentNotice
 git archive ${commit} | tar -x -C FroshEnvironmentNotice
 composer install --no-dev -n -o -d FroshEnvironmentNotice
+cd FroshEnvironmentNotice/Resources/notice-editor
+npm install -P
+npm run build
+cd ..
+rm -rf notice-editor
+cd ../..
 zip -r FroshEnvironmentNotice-${commit}.zip FroshEnvironmentNotice

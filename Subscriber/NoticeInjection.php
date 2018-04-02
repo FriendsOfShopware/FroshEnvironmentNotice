@@ -49,8 +49,9 @@ class NoticeInjection implements SubscriberInterface
     {
         /** @var Enlight_Controller_Plugins_ViewRenderer_Bootstrap $bootstrap */
         $bootstrap = $args->get('subject');
-        $moduleName = $bootstrap->Front()->Request()->getModuleName();
-        if ($moduleName === 'widget') {
+
+        if ($bootstrap->Front()->Request()->getModuleName() === 'widget' ||
+            $bootstrap->Front()->Request()->getControllerName() === 'FroshEnvironmentNoticeEditor') {
             return;
         }
 
