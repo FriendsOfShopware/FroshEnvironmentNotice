@@ -16,6 +16,12 @@
           <b-button variant="outline-secondary" v-on:click.stop="row.toggleDetails" v-bind:pressed="row.detailsShowing" v-if="row.item.id">
             Edit
           </b-button>
+          <b-button variant="outline-danger" v-on:click="deleteNotice(row.item)" v-if="row.item.id">
+            Delete
+          </b-button>
+          <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-else>
+            Cancel
+          </b-button>
         </b-button-group>
       </template>
       <template slot="row-details" slot-scope="row">
@@ -42,6 +48,9 @@
                 </b-button>
                 <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-if="!row.item.id">
                   Delete
+                </b-button>
+                <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-else>
+                  Cancel
                 </b-button>
               </b-button-group>
             </b-col>
@@ -94,6 +103,21 @@ export default {
         message: '',
         _showDetails: true,
       });
+    },
+    deleteNotice(notice) {
+      axios.post('ajaxDelete', { id: notice.id })
+        .then(() => {
+          const notices = this.notices;
+          notices.splice(this.notices.indexOf(notice), 1);
+          this.notices = notices;
+        })
+        .catch((response) => {
+          this.alerts.push({
+            variant: 'danger',
+            message: `An error occured while deleting ${notice.name} (${notice.id}). Check the console for further information.`,
+          });
+          console.log(response);
+        });
     },
     cancelNotice(notice) {
       const notices = this.notices;
