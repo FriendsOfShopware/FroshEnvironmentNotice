@@ -52,45 +52,22 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
 
         $this->Response()->setHeader('Content-type', 'application/json', true);
-        $this->Response()->setHttpResponseCode((int)$data['code']);
+        $this->Response()->setHttpResponseCode((int) $data['code']);
         $this->Response()->setBody($resultData);
     }
 
     public function ajaxListAction()
     {
-        $this->View()->assign([
-            'success' => true,
-            'code' => 200,
-            'items' => $this->noticeRepository->findAll(),
-        ]);
+        $this->setResponseData(200, $this->noticeRepository->findAll(), 'items');
     }
 
     public function ajaxGetAction()
     {
-        /** @var Notice $model */
-        $model = null;
-        try {
-            $model = $this->noticeRepository->find($this->Request()->get('id'));
-            if (is_null($model)) {
-                throw new InvalidArgumentException('$model is null');
-            }
-        } catch (Exception $exception) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
-                ],
-                'code' => 404,
-            ]);
+        if (($model = $this->findNoticeOrFailResponse((int) $this->Request()->get('id'))) === false) {
             return;
         }
 
-        $this->View()->assign([
-            'success' => true,
-            'code' => 200,
-            'data' => $model,
-        ]);
+        $this->setResponseData(200, $model);
     }
 
     public function ajaxInsertAction()
@@ -103,41 +80,15 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->getModelManager()->persist($model);
         try {
             $this->getModelManager()->flush($model);
-            $this->View()->assign([
-                'success' => true,
-                'data' => $model,
-                'code' => 201,
-            ]);
+            $this->setResponseData(201, $model);
         } catch (\Doctrine\ORM\OptimisticLockException $e) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ],
-                'code' => 503,
-            ]);
+            $this->setResponseException($e);
         }
     }
 
     public function ajaxUpdateAction()
     {
-        /** @var Notice $model */
-        $model = null;
-        try {
-            $model = $this->noticeRepository->find($this->Request()->getPost('id'));
-            if (is_null($model)) {
-                throw new InvalidArgumentException('$model is null');
-            }
-        } catch (Exception $exception) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
-                ],
-                'code' => 404,
-            ]);
+        if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
             return;
         }
 
@@ -148,60 +99,72 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->getModelManager()->persist($model);
         try {
             $this->getModelManager()->flush($model);
-            $this->View()->assign([
-                'success' => true,
-                'data' => $model,
-                'code' => 200,
-            ]);
+            $this->setResponseData(200, $model);
         } catch (\Doctrine\ORM\OptimisticLockException $e) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ],
-                'code' => 503,
-            ]);
+            $this->setResponseException($e);
         }
     }
 
     public function ajaxDeleteAction()
     {
-        /** @var Notice $model */
-        $model = null;
-        try {
-            $model = $this->noticeRepository->find($this->Request()->getPost('id'));
-            if (is_null($model)) {
-                throw new InvalidArgumentException('$model is null');
-            }
-        } catch (Exception $exception) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
-                ],
-                'code' => 404,
-            ]);
+        if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
             return;
         }
 
         try {
             $this->getModelManager()->remove($model);
             $this->getModelManager()->flush($model);
-            $this->View()->assign([
-                'success' => true,
-                'code' => 200,
-            ]);
+            $this->setResponseData(200, []);
         } catch (Exception $e) {
-            $this->View()->assign([
-                'success' => false,
-                'data' => [
-                    'message' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ],
-                'code' => 503,
-            ]);
+            $this->setResponseException($e);
         }
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Notice|false
+     */
+    protected function findNoticeOrFailResponse(int $id)
+    {
+        try {
+            /** @var Notice $model */
+            $model = $this->noticeRepository->find($id);
+            if (is_null($model)) {
+                throw new InvalidArgumentException('$model is null');
+            }
+
+            return $model;
+        } catch (Exception $exception) {
+            $this->setResponseException($exception, 404);
+
+            return false;
+        }
+    }
+
+    /**
+     * @param int          $statusCode
+     * @param array|object $data
+     * @param string       $dataKey
+     */
+    protected function setResponseData(int $statusCode, $data, string $dataKey = 'data')
+    {
+        $this->View()->assign([
+            'success' => $statusCode >= 200 && $statusCode < 400,
+            'code' => $statusCode,
+            $dataKey => $data,
+        ]);
+    }
+
+    /**
+     * @param Throwable $exception
+     * @param int       $statusCode
+     */
+    protected function setResponseException(Throwable $exception, int $statusCode = 503)
+    {
+        $this->setResponseData($statusCode, [
+            'message' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+        ]);
     }
 }

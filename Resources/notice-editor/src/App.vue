@@ -118,11 +118,7 @@ export default {
           this.cancelNotice(notice);
         })
         .catch((response) => {
-          this.alerts.push({
-            variant: 'danger',
-            message: `An error occured while deleting ${notice.name} (${notice.id}). Check the console for further information.`,
-          });
-          console.log(response);
+          this.logCatchedResponse(notice, response, 'deleting');
         });
     },
     cancelNotice(notice) {
@@ -134,11 +130,7 @@ export default {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.alerts.push({
-            variant: 'danger',
-            message: `An error occured while resetting ${notice.name} (${notice.id}). Check the console for further information.`,
-          });
-          console.log(response);
+          this.logCatchedResponse(notice, response, 'resetting');
         });
     },
     saveNotice(notice) {
@@ -147,11 +139,7 @@ export default {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.alerts.push({
-            variant: 'danger',
-            message: `An error occured while saving ${notice.name} (${notice.id}). Check the console for further information.`,
-          });
-          console.log(response);
+          this.logCatchedResponse(notice, response, 'saving');
         });
     },
     insertNotice(notice) {
@@ -160,11 +148,7 @@ export default {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.alerts.push({
-            variant: 'danger',
-            message: `An error occured while inserting ${notice.name} (${notice.id}). Check the console for further information.`,
-          });
-          console.log(response);
+          this.logCatchedResponse(notice, response, 'inserting');
         });
     },
     loadData() {
@@ -179,6 +163,13 @@ export default {
             this.isLoading = false;
           });
       }
+    },
+    logCatchedResponse(notice, response, action) {
+      this.alerts.push({
+        variant: 'danger',
+        message: `An error occured while ${action} ${notice.name} (${notice.id}). Check the console for further information.`,
+      });
+      console.log(response);
     },
   },
 };
