@@ -48,7 +48,10 @@
           <b-row>
             <b-col class="text-right">
               <b-button-group size="sm">
-                <b-button variant="outline-success" v-on:click="insertNotice(row.item)" v-if="!row.item.id">
+                <b-button variant="outline-success" v-on:click="saveNotice(row.item)" v-if="row.item.id">
+                  Save
+                </b-button>
+                <b-button variant="outline-success" v-on:click="insertNotice(row.item)" v-else>
                   Add
                 </b-button>
                 <b-button variant="outline-danger" v-on:click="resetNotice(row.item)" v-if="row.item.id">
@@ -134,6 +137,19 @@ export default {
           this.alerts.push({
             variant: 'danger',
             message: `An error occured while resetting ${notice.name} (${notice.id}). Check the console for further information.`,
+          });
+          console.log(response);
+        });
+    },
+    saveNotice(notice) {
+      axios.post('ajaxUpdate', notice)
+        .then((response) => {
+          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
+        })
+        .catch((response) => {
+          this.alerts.push({
+            variant: 'danger',
+            message: `An error occured while saving ${notice.name} (${notice.id}). Check the console for further information.`,
           });
           console.log(response);
         });

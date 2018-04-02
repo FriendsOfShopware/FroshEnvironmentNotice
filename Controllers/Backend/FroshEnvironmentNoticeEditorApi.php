@@ -20,6 +20,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
             'ajaxGet',
             'ajaxList',
             'ajaxInsert',
+            'ajaxUpdate',
             'ajaxDelete',
         ];
     }
@@ -106,6 +107,51 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
                 'success' => true,
                 'data' => $model,
                 'code' => 201,
+            ]);
+        } catch (\Doctrine\ORM\OptimisticLockException $e) {
+            $this->View()->assign([
+                'success' => false,
+                'data' => [
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ],
+                'code' => 503,
+            ]);
+        }
+    }
+
+    public function ajaxUpdateAction()
+    {
+        /** @var Notice $model */
+        $model = null;
+        try {
+            $model = $this->noticeRepository->find($this->Request()->getPost('id'));
+            if (is_null($model)) {
+                throw new InvalidArgumentException('$model is null');
+            }
+        } catch (Exception $exception) {
+            $this->View()->assign([
+                'success' => false,
+                'data' => [
+                    'message' => $exception->getMessage(),
+                    'trace' => $exception->getTraceAsString(),
+                ],
+                'code' => 404,
+            ]);
+            return;
+        }
+
+        $data = $this->Request()->getPost();
+        unset($data['id']);
+        $model->fromArray($data);
+
+        $this->getModelManager()->persist($model);
+        try {
+            $this->getModelManager()->flush($model);
+            $this->View()->assign([
+                'success' => true,
+                'data' => $model,
+                'code' => 200,
             ]);
         } catch (\Doctrine\ORM\OptimisticLockException $e) {
             $this->View()->assign([
