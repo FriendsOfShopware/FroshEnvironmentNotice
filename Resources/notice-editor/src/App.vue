@@ -1,137 +1,47 @@
 <template>
   <div id="app">
+    <div class="w-100 sticky-top position-fixed px-4 mt-5">
+      <b-alert v-for="alert in alerts" v-bind:variant="alert.variant" dismissible show>
+        {{alert.message}}
+        <template slot="dismiss">
+          &times;
+        </template>
+      </b-alert>
+    </div>
     <b-card no-body>
       <b-tabs card>
         <b-tab title="Messages" active>
-          <div class="w-100 sticky-top position-fixed px-4 mt-5">
-            <b-alert v-for="alert in alerts" v-bind:variant="alert.variant" dismissible show>
-              {{alert.message}}
-              <template slot="dismiss">
-                &times;
-              </template>
-            </b-alert>
-          </div>
-          <b-navbar class="navbar-light bg-light">
-            <b-nav-form>
-              <b-button variant="outline-success" size="sm" v-on:click="addNotice" v-bind:disabled="isLoading">
-                Add
-              </b-button>
-            </b-nav-form>
-            <b-nav-form right>
-              <b-button variant="outline-primary" size="sm" v-on:click="loadNotices" v-bind:disabled="isLoading">
-                Load
-              </b-button>
-            </b-nav-form>
-          </b-navbar>
-          <b-table v-bind:items="notices" v-bind:fields="messagesFields" v-bind:busy="isLoading" hover small>
-            <template slot="actions" slot-scope="row">
-              <b-button-group size="sm">
-                <b-button variant="outline-secondary" v-on:click.stop="row.toggleDetails" v-bind:pressed="row.detailsShowing" v-if="row.item.id">
-                  Edit
-                </b-button>
-                <b-button variant="outline-danger" v-on:click="deleteNotice(row.item)" v-if="row.item.id">
-                  Delete
-                </b-button>
-                <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-else>
-                  Cancel
-                </b-button>
-              </b-button-group>
+          <collection-editor v-bind:fields="messagesFields" api-key="Messages" v-bind:default-item="defaultMessage" v-on:error="addAlert">
+            <template slot="detail" slot-scope="{ item }">
+              <b-form-group id="fieldName"
+                            label="Name"
+                            label-for="inputName"
+                            v-bind:label-cols="3"
+                            horizontal>
+                <b-form-input id="inputName" v-model="item.name"/>
+              </b-form-group>
+              <b-form-group id="fieldMessage"
+                            v-bind:label-cols="3"
+                            label="Message"
+                            label-for="inputMessage"
+                            horizontal>
+                <b-form-input id="inputMessage" v-model="item.message"/>
+              </b-form-group>
             </template>
-            <template slot="row-details" slot-scope="row">
-              <b-card>
-                <b-form-group id="fieldName"
-                              label="Name"
-                              label-for="inputName"
-                              v-bind:label-cols="3"
-                              horizontal>
-                  <b-form-input id="inputName" v-model="row.item.name"></b-form-input>
-                </b-form-group>
-                <b-form-group id="fieldMessage"
-                              v-bind:label-cols="3"
-                              label="Message"
-                              label-for="inputMessage"
-                              horizontal>
-                  <b-form-input id="inputMessage" v-model="row.item.message"></b-form-input>
-                </b-form-group>
-                <b-row>
-                  <b-col class="text-right">
-                    <b-button-group size="sm">
-                      <b-button variant="outline-success" v-on:click="saveNotice(row.item)" v-if="row.item.id">
-                        Save
-                      </b-button>
-                      <b-button variant="outline-success" v-on:click="insertNotice(row.item)" v-else>
-                        Add
-                      </b-button>
-                      <b-button variant="outline-danger" v-on:click="resetNotice(row.item)" v-if="row.item.id">
-                        Cancel
-                      </b-button>
-                      <b-button variant="outline-danger" v-on:click="cancelNotice(row.item)" v-else>
-                        Cancel
-                      </b-button>
-                    </b-button-group>
-                  </b-col>
-                </b-row>
-              </b-card>
-            </template>
-          </b-table>
+          </collection-editor>
         </b-tab>
         <b-tab title="Slots">
-          <b-navbar class="navbar-light bg-light">
-            <b-nav-form>
-              <b-button variant="outline-success" size="sm" v-on:click="addSlot" v-bind:disabled="isLoading">
-                Add
-              </b-button>
-            </b-nav-form>
-            <b-nav-form right>
-              <b-button variant="outline-primary" size="sm" v-on:click="loadSlots" v-bind:disabled="isLoading">
-                Load
-              </b-button>
-            </b-nav-form>
-          </b-navbar>
-          <b-table v-bind:items="slots" v-bind:fields="slotsFields" v-bind:busy="isLoading" hover small>
-            <template slot="actions" slot-scope="row">
-              <b-button-group size="sm">
-                <b-button variant="outline-secondary" v-on:click.stop="row.toggleDetails" v-bind:pressed="row.detailsShowing" v-if="row.item.id">
-                  Edit
-                </b-button>
-                <b-button variant="outline-danger" v-on:click="deleteSlot(row.item)" v-if="row.item.id">
-                  Delete
-                </b-button>
-                <b-button variant="outline-danger" v-on:click="cancelSlot(row.item)" v-else>
-                  Cancel
-                </b-button>
-              </b-button-group>
-            </template>
-            <template slot="row-details" slot-scope="row">
-              <b-card>
-                <b-form-group id="fieldName"
-                              label="Name"
-                              label-for="inputName"
-                              v-bind:label-cols="3"
-                              horizontal>
-                  <b-form-input id="inputName" v-model="row.item.name"></b-form-input>
-                </b-form-group>
-                <b-row>
-                  <b-col class="text-right">
-                    <b-button-group size="sm">
-                      <b-button variant="outline-success" v-on:click="saveSlot(row.item)" v-if="row.item.id">
-                        Save
-                      </b-button>
-                      <b-button variant="outline-success" v-on:click="insertSlot(row.item)" v-else>
-                        Add
-                      </b-button>
-                      <b-button variant="outline-danger" v-on:click="resetSlot(row.item)" v-if="row.item.id">
-                        Cancel
-                      </b-button>
-                      <b-button variant="outline-danger" v-on:click="cancelSlot(row.item)" v-else>
-                        Cancel
-                      </b-button>
-                    </b-button-group>
-                  </b-col>
-                </b-row>
-              </b-card>
-            </template>
-          </b-table>
+          <collection-editor v-bind:fields="slotsFields" api-key="Slots" v-bind:default-item="defaultSlot" v-on:error="addAlert">
+            <b-form-group id="fieldName"
+                          label="Name"
+                          label-for="inputName"
+                          v-bind:label-cols="3"
+                          slot-scope="{ item }"
+                          slot="detail"
+                          horizontal>
+              <b-form-input id="inputName" v-model="item.name"/>
+            </b-form-group>
+          </collection-editor>
         </b-tab>
       </b-tabs>
     </b-card>
@@ -139,9 +49,12 @@
 </template>
 
 <script>
-import axios from 'axios';
+import CollectionEditor from './components/CollectionEditor';
 
 export default {
+  components: {
+    CollectionEditor,
+  },
   data() {
     return {
       messagesFields: {
@@ -151,166 +64,26 @@ export default {
         message: {
           sortable: true,
         },
-        actions: {
-          tdClass: 'table-col-minimum',
-          thClass: 'table-col-minimum',
-          label: '',
-        },
       },
       slotsFields: {
         name: {
           sortable: true,
         },
-        actions: {
-          tdClass: 'table-col-minimum',
-          thClass: 'table-col-minimum',
-          label: '',
-        },
       },
-      alerts: [],
-      notices: [],
-      slots: [],
-      isLoading: false,
-    };
-  },
-  created() {
-    this.loadNotices();
-    this.loadSlots();
-  },
-  methods: {
-    addNotice() {
-      this.notices.push({
-        id: null,
-        name: '',
-        message: '',
-        _showDetails: true,
-      });
-    },
-    deleteNotice(notice) {
-      axios.post('ajaxMessagesDelete', { id: notice.id })
-        .then(() => {
-          this.cancelNotice(notice);
-        })
-        .catch((response) => {
-          this.logCatchedNoticeResponse(notice, response, 'deleting');
-        });
-    },
-    cancelNotice(notice) {
-      this.notices.splice(this.notices.indexOf(notice), 1);
-    },
-    resetNotice(notice) {
-      axios.get(`ajaxMessagesGet?id=${notice.id}`)
-        .then((response) => {
-          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedNoticeResponse(notice, response, 'resetting');
-        });
-    },
-    saveNotice(notice) {
-      axios.post('ajaxMessagesUpdate', notice)
-        .then((response) => {
-          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedNoticeResponse(notice, response, 'saving');
-        });
-    },
-    insertNotice(notice) {
-      axios.post('ajaxMessagesInsert', notice)
-        .then((response) => {
-          this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedNoticeResponse(notice, response, 'inserting');
-        });
-    },
-    loadNotices() {
-      if (!this.isLoading) {
-        this.isLoading = true;
-        axios.get('ajaxMessagesList')
-          .then((response) => {
-            this.notices = response.data.items;
-            this.isLoading = false;
-          })
-          .catch(() => {
-            this.isLoading = false;
-          });
-      }
-    },
-    logCatchedNoticeResponse(notice, response, action) {
-      this.alerts.push({
-        variant: 'danger',
-        message: `An error occured while ${action} ${notice.name} (${notice.id}). Check the console for further information.`,
-      });
-      console.log(response);
-    },
-    addSlot() {
-      this.slots.push({
-        id: null,
+      defaultSlot: {
         name: '',
         style: {},
-        _showDetails: true,
-      });
-    },
-    deleteSlot(slot) {
-      axios.post('ajaxSlotsDelete', { id: slot.id })
-        .then(() => {
-          this.cancelSlot(slot);
-        })
-        .catch((response) => {
-          this.logCatchedSlotResponse(slot, response, 'deleting');
-        });
-    },
-    cancelSlot(slot) {
-      this.slots.splice(this.slots.indexOf(slot), 1);
-    },
-    resetSlot(slot) {
-      axios.get(`ajaxSlotsGet?id=${slot.id}`)
-        .then((response) => {
-          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedSlotResponse(slot, response, 'resetting');
-        });
-    },
-    saveSlot(slot) {
-      axios.post('ajaxSlotsUpdate', slot)
-        .then((response) => {
-          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedSlotResponse(slot, response, 'saving');
-        });
-    },
-    insertSlot(slot) {
-      axios.post('ajaxSlotsInsert', slot)
-        .then((response) => {
-          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
-        })
-        .catch((response) => {
-          this.logCatchedSlotResponse(slot, response, 'inserting');
-        });
-    },
-    loadSlots() {
-      if (!this.isLoading) {
-        this.isLoading = true;
-        axios.get('ajaxSlotsList')
-          .then((response) => {
-            this.slots = response.data.items;
-            this.isLoading = false;
-          })
-          .catch(() => {
-            this.isLoading = false;
-          });
-      }
-    },
-    logCatchedSlotResponse(slot, response, action) {
-      this.alerts.push({
-        variant: 'danger',
-        message: `An error occured while ${action} ${slot.name} (${slot.id}). Check the console for further information.`,
-      });
-      console.log(response);
+      },
+      defaultMessage: {
+        name: '',
+        message: '',
+      },
+      alerts: [],
+    };
+  },
+  methods: {
+    addAlert(alertData) {
+      this.alerts.push(alertData);
     },
   },
 };
