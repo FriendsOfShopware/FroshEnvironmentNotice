@@ -19,6 +19,10 @@
             <factory service="models" method="getRepository"/>
             <argument type="string">FroshEnvironmentNotice\Models\Notice</argument>
         </service>
+        <service id="frosh.environment_notice.repository.slot" class="Shopware\Components\Model\ModelRepository">
+            <factory service="models" method="getRepository"/>
+            <argument type="string">FroshEnvironmentNotice\Models\Slot</argument>
+        </service>
 
         <!-- Services -->
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>

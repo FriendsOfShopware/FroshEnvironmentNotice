@@ -5,6 +5,7 @@ namespace FroshEnvironmentNotice;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use FroshEnvironmentNotice\Models\Notice;
+use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\InstallContext;
@@ -18,6 +19,7 @@ class FroshEnvironmentNotice extends Plugin
      */
     private $models = [
         Notice::class,
+        Slot::class,
     ];
 
     /**
