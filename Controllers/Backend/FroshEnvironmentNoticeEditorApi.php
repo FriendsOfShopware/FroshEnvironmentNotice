@@ -3,6 +3,7 @@
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\CSRFWhitelistAware;
+use Shopware\Components\Model\ModelEntity;
 use Shopware\Components\Model\ModelRepository;
 
 class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlight_Controller_Action implements CSRFWhitelistAware
@@ -70,109 +71,83 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
     public function ajaxMessagesListAction()
     {
-        $this->setResponseData(200, $this->noticeRepository->findAll(), 'items');
+        $this->listActionGeneric($this->noticeRepository);
     }
 
     public function ajaxMessagesGetAction()
     {
-        if (($model = $this->findNoticeOrFailResponse((int) $this->Request()->get('id'))) === false) {
-            return;
-        }
-
-        $this->setResponseData(200, $model);
+        $this->getActionGeneric($this->noticeRepository);
     }
 
     public function ajaxMessagesInsertAction()
     {
-        $data = $this->Request()->getPost();
-        unset($data['id']);
-        $model = new Notice();
-        $model->fromArray($data);
-
-        $this->getModelManager()->persist($model);
-        try {
-            $this->getModelManager()->flush($model);
-            $this->setResponseData(201, $model);
-        } catch (\Doctrine\ORM\OptimisticLockException $e) {
-            $this->setResponseException($e);
-        }
+        $this->insertActionGeneric(Notice::class);
     }
 
     public function ajaxMessagesUpdateAction()
     {
-        if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
-            return;
-        }
-
-        $data = $this->Request()->getPost();
-        unset($data['id']);
-        $model->fromArray($data);
-
-        $this->getModelManager()->persist($model);
-        try {
-            $this->getModelManager()->flush($model);
-            $this->setResponseData(200, $model);
-        } catch (\Doctrine\ORM\OptimisticLockException $e) {
-            $this->setResponseException($e);
-        }
+        $this->updateActionGeneric($this->noticeRepository);
     }
 
     public function ajaxMessagesDeleteAction()
     {
-        if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
-            return;
-        }
-
-        try {
-            $this->getModelManager()->remove($model);
-            $this->getModelManager()->flush($model);
-            $this->setResponseData(200, []);
-        } catch (Exception $e) {
-            $this->setResponseException($e);
-        }
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return Notice|false
-     */
-    protected function findNoticeOrFailResponse(int $id)
-    {
-        try {
-            /** @var Notice $model */
-            $model = $this->noticeRepository->find($id);
-            if (is_null($model)) {
-                throw new InvalidArgumentException('$model is null');
-            }
-
-            return $model;
-        } catch (Exception $exception) {
-            $this->setResponseException($exception, 404);
-
-            return false;
-        }
+        $this->deleteActionGeneric($this->noticeRepository);
     }
 
     public function ajaxSlotsListAction()
     {
-        $this->setResponseData(200, $this->slotRepository->findAll(), 'items');
+        $this->listActionGeneric($this->slotRepository);
     }
 
     public function ajaxSlotsGetAction()
     {
-        if (($model = $this->findSlotOrFailResponse((int) $this->Request()->get('id'))) === false) {
+        $this->getActionGeneric($this->slotRepository);
+    }
+
+    public function ajaxSlotsInsertAction()
+    {
+        $this->insertActionGeneric(Slot::class);
+    }
+
+    public function ajaxSlotsUpdateAction()
+    {
+        $this->updateActionGeneric($this->slotRepository);
+    }
+
+    public function ajaxSlotsDeleteAction()
+    {
+        $this->deleteActionGeneric($this->slotRepository);
+    }
+
+    /**
+     * @param ModelRepository $repository
+     */
+    protected function listActionGeneric(ModelRepository $repository)
+    {
+        $this->setResponseData(200, $repository->findAll(), 'items');
+    }
+
+    /**
+     * @param ModelRepository $repository
+     */
+    protected function getActionGeneric(ModelRepository $repository)
+    {
+        if (($model = $this->findModelOrFailResponse($repository, (int) $this->Request()->get('id'))) === false) {
             return;
         }
 
         $this->setResponseData(200, $model);
     }
 
-    public function ajaxSlotsInsertAction()
+    /**
+     * @param string $modelClass
+     */
+    protected function insertActionGeneric(string $modelClass)
     {
         $data = $this->Request()->getPost();
         unset($data['id']);
-        $model = new Slot();
+        /** @var ModelEntity $model */
+        $model = new $modelClass();
         $model->fromArray($data);
 
         $this->getModelManager()->persist($model);
@@ -184,9 +159,12 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
     }
 
-    public function ajaxSlotsUpdateAction()
+    /**
+     * @param ModelRepository $repository
+     */
+    protected function updateActionGeneric(ModelRepository $repository)
     {
-        if (($model = $this->findSlotOrFailResponse($this->Request()->getPost('id'))) === false) {
+        if (($model = $this->findModelOrFailResponse($repository, $this->Request()->getPost('id'))) === false) {
             return;
         }
 
@@ -203,9 +181,12 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
     }
 
-    public function ajaxSlotsDeleteAction()
+    /**
+     * @param ModelRepository $repository
+     */
+    protected function deleteActionGeneric(ModelRepository $repository)
     {
-        if (($model = $this->findSlotOrFailResponse($this->Request()->getPost('id'))) === false) {
+        if (($model = $this->findModelOrFailResponse($repository, $this->Request()->getPost('id'))) === false) {
             return;
         }
 
@@ -221,13 +202,13 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
     /**
      * @param int $id
      *
-     * @return Slot|false
+     * @return ModelEntity|false
      */
-    protected function findSlotOrFailResponse(int $id)
+    protected function findModelOrFailResponse(ModelRepository $repository, int $id)
     {
         try {
-            /** @var Slot $model */
-            $model = $this->slotRepository->find($id);
+            /** @var ModelEntity $model */
+            $model = $repository->find($id);
             if (is_null($model)) {
                 throw new InvalidArgumentException('$model is null');
             }
