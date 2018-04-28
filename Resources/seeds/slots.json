@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Top Left",
+    "style": "& {\n\tposition: fixed;\n\ttop: 0;\n\tleft: 0;\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Top Right",
+    "style": "& {\n\tposition: fixed;\n\ttop: 0;\n\tright: 0;\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Bottom Left",
+    "style": "& {\n\tposition: fixed;\n\tbottom: 0;\n\tleft: 0;\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Bottom Right",
+    "style": "& {\n\tposition: fixed;\n\tbottom: 0;\n\tright: 0;\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Top Center",
+    "style": "& {\n\tposition: fixed;\n\ttop: 0;\n\tleft: 50%;\n\ttransform: translateX(-50%);\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Bottom Center",
+    "style": "& {\n\tposition: fixed;\n\tbottom: 0;\n\tleft: 50%;\n\ttransform: translateX(-50%);\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Middle Left",
+    "style": "& {\n\tposition: fixed;\n\ttop: 50%;\n\tleft: 0;\n\ttransform: translateY(-50%);\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  },
+  {
+    "name": "Middle Right",
+    "style": "& {\n\tposition: fixed;\n\ttop: 50%;\n\tright: 0;\n\ttransform: translateY(-50%);\n\tcolor: white;\n\tbackground: black;\n\tz-index: 2147483647;\n}"
+  }
+]

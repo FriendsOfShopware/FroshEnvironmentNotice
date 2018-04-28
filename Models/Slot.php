@@ -78,20 +78,20 @@ class Slot extends ModelEntity implements JsonSerializable
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getStyle(): array
+    public function getStyle(): string
     {
-        return json_decode($this->style, true);
+        return $this->style;
     }
 
     /**
      * @param string $style
      * @return Slot
      */
-    public function setStyle(array $style): Slot
+    public function setStyle(string $style): Slot
     {
-        $this->style = json_encode($style);
+        $this->style = $style;
         return $this;
     }
 
