@@ -5,8 +5,10 @@ namespace FroshEnvironmentNotice\Subscriber;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Plugins_ViewRenderer_Bootstrap;
 use Enlight_Event_EventArgs;
+use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Services\ModifyHtmlText;
 use FroshEnvironmentNotice\Services\NoticeMarkupBuilder;
+use Shopware\Components\Model\ModelRepository;
 
 class NoticeInjection implements SubscriberInterface
 {
@@ -21,15 +23,22 @@ class NoticeInjection implements SubscriberInterface
     private $markupBuilder;
 
     /**
+     * @var ModelRepository
+     */
+    private $noticeRepository;
+
+    /**
      * NoticeInjection constructor.
      *
-     * @param ModifyHtmlText      $htmlTextModifier
+     * @param ModifyHtmlText $htmlTextModifier
      * @param NoticeMarkupBuilder $markupBuilder
+     * @param ModelRepository $noticeRepository
      */
-    public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder)
+    public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder, ModelRepository $noticeRepository)
     {
         $this->htmlTextModifier = $htmlTextModifier;
         $this->markupBuilder = $markupBuilder;
+        $this->noticeRepository = $noticeRepository;
     }
 
     /**
@@ -50,10 +59,23 @@ class NoticeInjection implements SubscriberInterface
         /** @var Enlight_Controller_Plugins_ViewRenderer_Bootstrap $bootstrap */
         $bootstrap = $args->get('subject');
 
-        if ($bootstrap->Front()->Request()->getModuleName() === 'widget' ||
+        $module = strtolower($bootstrap->Front()->Request()->getModuleName());
+
+        if ($module === 'widget' ||
             $bootstrap->Front()->Request()->getControllerName() === 'FroshEnvironmentNoticeEditor') {
             return;
         }
+
+        /** @var Notice|null $notice */
+        $notice = $this->noticeRepository->findOneBy([
+            'name' => $module,
+        ]);
+
+        if (is_null($notice)) {
+            return;
+        }
+
+        $message = $notice->getMessage();
 
         $args->setReturn(
             $this->htmlTextModifier->insertAfterTag(
@@ -70,7 +92,7 @@ class NoticeInjection implements SubscriberInterface
                     'z-index' => '9999999999',
                     'font-size' => '1.2em',
                     'pointer-events' => 'none',
-                ], 'Das ist eine Stagingumgebung'),
+                ], $message),
                 $args->getReturn()
             )
         );

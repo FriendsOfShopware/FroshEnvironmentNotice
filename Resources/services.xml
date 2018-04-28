@@ -11,6 +11,13 @@
             <tag name="shopware.event_subscriber" />
             <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
             <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
+            <argument type="service" id="frosh.environment_notice.repository.notice"/>
+        </service>
+
+        <!-- Repository -->
+        <service id="frosh.environment_notice.repository.notice" class="Shopware\Components\Model\ModelRepository">
+            <factory service="models" method="getRepository"/>
+            <argument type="string">FroshEnvironmentNotice\Models\Notice</argument>
         </service>
 
         <!-- Services -->
