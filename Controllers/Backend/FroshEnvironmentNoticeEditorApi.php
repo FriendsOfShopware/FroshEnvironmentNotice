@@ -17,11 +17,11 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
     public function getWhitelistedCSRFActions()
     {
         return [
-            'ajaxGet',
-            'ajaxList',
-            'ajaxInsert',
-            'ajaxUpdate',
-            'ajaxDelete',
+            'ajaxMessagesGet',
+            'ajaxMessagesList',
+            'ajaxMessagesInsert',
+            'ajaxMessagesUpdate',
+            'ajaxMessagesDelete',
         ];
     }
 
@@ -56,12 +56,12 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->Response()->setBody($resultData);
     }
 
-    public function ajaxListAction()
+    public function ajaxMessagesListAction()
     {
         $this->setResponseData(200, $this->noticeRepository->findAll(), 'items');
     }
 
-    public function ajaxGetAction()
+    public function ajaxMessagesGetAction()
     {
         if (($model = $this->findNoticeOrFailResponse((int) $this->Request()->get('id'))) === false) {
             return;
@@ -70,7 +70,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->setResponseData(200, $model);
     }
 
-    public function ajaxInsertAction()
+    public function ajaxMessagesInsertAction()
     {
         $data = $this->Request()->getPost();
         unset($data['id']);
@@ -86,7 +86,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
     }
 
-    public function ajaxUpdateAction()
+    public function ajaxMessagesUpdateAction()
     {
         if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
             return;
@@ -105,7 +105,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
     }
 
-    public function ajaxDeleteAction()
+    public function ajaxMessagesDeleteAction()
     {
         if (($model = $this->findNoticeOrFailResponse($this->Request()->getPost('id'))) === false) {
             return;

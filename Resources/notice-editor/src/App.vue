@@ -18,12 +18,12 @@
               </b-button>
             </b-nav-form>
             <b-nav-form right>
-              <b-button variant="outline-primary" size="sm" v-on:click="loadData" v-bind:disabled="isLoading">
+              <b-button variant="outline-primary" size="sm" v-on:click="loadNotices" v-bind:disabled="isLoading">
                 Load
               </b-button>
             </b-nav-form>
           </b-navbar>
-          <b-table v-bind:items="notices" v-bind:fields="fields" v-bind:busy="isLoading" hover small>
+          <b-table v-bind:items="notices" v-bind:fields="messagesFields" v-bind:busy="isLoading" hover small>
             <template slot="actions" slot-scope="row">
               <b-button-group size="sm">
                 <b-button variant="outline-secondary" v-on:click.stop="row.toggleDetails" v-bind:pressed="row.detailsShowing" v-if="row.item.id">
@@ -86,7 +86,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      fields: {
+      messagesFields: {
         name: {
           sortable: true,
         },
@@ -105,7 +105,7 @@ export default {
     };
   },
   created() {
-    this.loadData();
+    this.loadNotices();
   },
   methods: {
     addNotice() {
@@ -117,48 +117,48 @@ export default {
       });
     },
     deleteNotice(notice) {
-      axios.post('ajaxDelete', { id: notice.id })
+      axios.post('ajaxMessagesDelete', { id: notice.id })
         .then(() => {
           this.cancelNotice(notice);
         })
         .catch((response) => {
-          this.logCatchedResponse(notice, response, 'deleting');
+          this.logCatchedNoticeResponse(notice, response, 'deleting');
         });
     },
     cancelNotice(notice) {
       this.notices.splice(this.notices.indexOf(notice), 1);
     },
     resetNotice(notice) {
-      axios.get(`ajaxGet?id=${notice.id}`)
+      axios.get(`ajaxMessagesGet?id=${notice.id}`)
         .then((response) => {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.logCatchedResponse(notice, response, 'resetting');
+          this.logCatchedNoticeResponse(notice, response, 'resetting');
         });
     },
     saveNotice(notice) {
-      axios.post('ajaxUpdate', notice)
+      axios.post('ajaxMessagesUpdate', notice)
         .then((response) => {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.logCatchedResponse(notice, response, 'saving');
+          this.logCatchedNoticeResponse(notice, response, 'saving');
         });
     },
     insertNotice(notice) {
-      axios.post('ajaxInsert', notice)
+      axios.post('ajaxMessagesInsert', notice)
         .then((response) => {
           this.notices.splice(this.notices.indexOf(notice), 1, response.data.data);
         })
         .catch((response) => {
-          this.logCatchedResponse(notice, response, 'inserting');
+          this.logCatchedNoticeResponse(notice, response, 'inserting');
         });
     },
-    loadData() {
+    loadNotices() {
       if (!this.isLoading) {
         this.isLoading = true;
-        axios.get('ajaxList')
+        axios.get('ajaxMessagesList')
           .then((response) => {
             this.notices = response.data.items;
             this.isLoading = false;
@@ -168,7 +168,7 @@ export default {
           });
       }
     },
-    logCatchedResponse(notice, response, action) {
+    logCatchedNoticeResponse(notice, response, action) {
       this.alerts.push({
         variant: 'danger',
         message: `An error occured while ${action} ${notice.name} (${notice.id}). Check the console for further information.`,
