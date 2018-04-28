@@ -75,6 +75,64 @@
             </template>
           </b-table>
         </b-tab>
+        <b-tab title="Slots">
+          <b-navbar class="navbar-light bg-light">
+            <b-nav-form>
+              <b-button variant="outline-success" size="sm" v-on:click="addSlot" v-bind:disabled="isLoading">
+                Add
+              </b-button>
+            </b-nav-form>
+            <b-nav-form right>
+              <b-button variant="outline-primary" size="sm" v-on:click="loadSlots" v-bind:disabled="isLoading">
+                Load
+              </b-button>
+            </b-nav-form>
+          </b-navbar>
+          <b-table v-bind:items="slots" v-bind:fields="slotsFields" v-bind:busy="isLoading" hover small>
+            <template slot="actions" slot-scope="row">
+              <b-button-group size="sm">
+                <b-button variant="outline-secondary" v-on:click.stop="row.toggleDetails" v-bind:pressed="row.detailsShowing" v-if="row.item.id">
+                  Edit
+                </b-button>
+                <b-button variant="outline-danger" v-on:click="deleteSlot(row.item)" v-if="row.item.id">
+                  Delete
+                </b-button>
+                <b-button variant="outline-danger" v-on:click="cancelSlot(row.item)" v-else>
+                  Cancel
+                </b-button>
+              </b-button-group>
+            </template>
+            <template slot="row-details" slot-scope="row">
+              <b-card>
+                <b-form-group id="fieldName"
+                              label="Name"
+                              label-for="inputName"
+                              v-bind:label-cols="3"
+                              horizontal>
+                  <b-form-input id="inputName" v-model="row.item.name"></b-form-input>
+                </b-form-group>
+                <b-row>
+                  <b-col class="text-right">
+                    <b-button-group size="sm">
+                      <b-button variant="outline-success" v-on:click="saveSlot(row.item)" v-if="row.item.id">
+                        Save
+                      </b-button>
+                      <b-button variant="outline-success" v-on:click="insertSlot(row.item)" v-else>
+                        Add
+                      </b-button>
+                      <b-button variant="outline-danger" v-on:click="resetSlot(row.item)" v-if="row.item.id">
+                        Cancel
+                      </b-button>
+                      <b-button variant="outline-danger" v-on:click="cancelSlot(row.item)" v-else>
+                        Cancel
+                      </b-button>
+                    </b-button-group>
+                  </b-col>
+                </b-row>
+              </b-card>
+            </template>
+          </b-table>
+        </b-tab>
       </b-tabs>
     </b-card>
   </div>
@@ -99,13 +157,25 @@ export default {
           label: '',
         },
       },
+      slotsFields: {
+        name: {
+          sortable: true,
+        },
+        actions: {
+          tdClass: 'table-col-minimum',
+          thClass: 'table-col-minimum',
+          label: '',
+        },
+      },
       alerts: [],
       notices: [],
+      slots: [],
       isLoading: false,
     };
   },
   created() {
     this.loadNotices();
+    this.loadSlots();
   },
   methods: {
     addNotice() {
@@ -172,6 +242,73 @@ export default {
       this.alerts.push({
         variant: 'danger',
         message: `An error occured while ${action} ${notice.name} (${notice.id}). Check the console for further information.`,
+      });
+      console.log(response);
+    },
+    addSlot() {
+      this.slots.push({
+        id: null,
+        name: '',
+        style: {},
+        _showDetails: true,
+      });
+    },
+    deleteSlot(slot) {
+      axios.post('ajaxSlotsDelete', { id: slot.id })
+        .then(() => {
+          this.cancelSlot(slot);
+        })
+        .catch((response) => {
+          this.logCatchedSlotResponse(slot, response, 'deleting');
+        });
+    },
+    cancelSlot(slot) {
+      this.slots.splice(this.slots.indexOf(slot), 1);
+    },
+    resetSlot(slot) {
+      axios.get(`ajaxSlotsGet?id=${slot.id}`)
+        .then((response) => {
+          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
+        })
+        .catch((response) => {
+          this.logCatchedSlotResponse(slot, response, 'resetting');
+        });
+    },
+    saveSlot(slot) {
+      axios.post('ajaxSlotsUpdate', slot)
+        .then((response) => {
+          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
+        })
+        .catch((response) => {
+          this.logCatchedSlotResponse(slot, response, 'saving');
+        });
+    },
+    insertSlot(slot) {
+      axios.post('ajaxSlotsInsert', slot)
+        .then((response) => {
+          this.slots.splice(this.slots.indexOf(slot), 1, response.data.data);
+        })
+        .catch((response) => {
+          this.logCatchedSlotResponse(slot, response, 'inserting');
+        });
+    },
+    loadSlots() {
+      if (!this.isLoading) {
+        this.isLoading = true;
+        axios.get('ajaxSlotsList')
+          .then((response) => {
+            this.slots = response.data.items;
+            this.isLoading = false;
+          })
+          .catch(() => {
+            this.isLoading = false;
+          });
+      }
+    },
+    logCatchedSlotResponse(slot, response, action) {
+      this.alerts.push({
+        variant: 'danger',
+        message: `An error occured while ${action} ${slot.name} (${slot.id}). Check the console for further information.`,
       });
       console.log(response);
     },
