@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use FroshEnvironmentNotice\Models\Notice;
+use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Components\Model\ModelRepository;
 
@@ -10,6 +11,11 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
      * @var ModelRepository
      */
     private $noticeRepository;
+
+    /**
+     * @var ModelRepository
+     */
+    private $slotRepository;
 
     /**
      * {@inheritdoc}
@@ -22,6 +28,11 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
             'ajaxMessagesInsert',
             'ajaxMessagesUpdate',
             'ajaxMessagesDelete',
+            'ajaxSlotsGet',
+            'ajaxSlotsList',
+            'ajaxSlotsInsert',
+            'ajaxSlotsUpdate',
+            'ajaxSlotsDelete',
         ];
     }
 
@@ -32,6 +43,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->Front()->Plugins()->ViewRenderer()->setNoRender();
         $this->Request()->replacePost(json_decode(file_get_contents('php://input'), true));
         $this->noticeRepository = $this->getModelManager()->getRepository(Notice::class);
+        $this->slotRepository = $this->getModelManager()->getRepository(Slot::class);
     }
 
     public function postDispatch()
@@ -130,6 +142,92 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         try {
             /** @var Notice $model */
             $model = $this->noticeRepository->find($id);
+            if (is_null($model)) {
+                throw new InvalidArgumentException('$model is null');
+            }
+
+            return $model;
+        } catch (Exception $exception) {
+            $this->setResponseException($exception, 404);
+
+            return false;
+        }
+    }
+
+    public function ajaxSlotsListAction()
+    {
+        $this->setResponseData(200, $this->slotRepository->findAll(), 'items');
+    }
+
+    public function ajaxSlotsGetAction()
+    {
+        if (($model = $this->findSlotOrFailResponse((int) $this->Request()->get('id'))) === false) {
+            return;
+        }
+
+        $this->setResponseData(200, $model);
+    }
+
+    public function ajaxSlotsInsertAction()
+    {
+        $data = $this->Request()->getPost();
+        unset($data['id']);
+        $model = new Slot();
+        $model->fromArray($data);
+
+        $this->getModelManager()->persist($model);
+        try {
+            $this->getModelManager()->flush($model);
+            $this->setResponseData(201, $model);
+        } catch (\Doctrine\ORM\OptimisticLockException $e) {
+            $this->setResponseException($e);
+        }
+    }
+
+    public function ajaxSlotsUpdateAction()
+    {
+        if (($model = $this->findSlotOrFailResponse($this->Request()->getPost('id'))) === false) {
+            return;
+        }
+
+        $data = $this->Request()->getPost();
+        unset($data['id']);
+        $model->fromArray($data);
+
+        $this->getModelManager()->persist($model);
+        try {
+            $this->getModelManager()->flush($model);
+            $this->setResponseData(200, $model);
+        } catch (\Doctrine\ORM\OptimisticLockException $e) {
+            $this->setResponseException($e);
+        }
+    }
+
+    public function ajaxSlotsDeleteAction()
+    {
+        if (($model = $this->findSlotOrFailResponse($this->Request()->getPost('id'))) === false) {
+            return;
+        }
+
+        try {
+            $this->getModelManager()->remove($model);
+            $this->getModelManager()->flush($model);
+            $this->setResponseData(200, []);
+        } catch (Exception $e) {
+            $this->setResponseException($e);
+        }
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Slot|false
+     */
+    protected function findSlotOrFailResponse(int $id)
+    {
+        try {
+            /** @var Slot $model */
+            $model = $this->slotRepository->find($id);
             if (is_null($model)) {
                 throw new InvalidArgumentException('$model is null');
             }
