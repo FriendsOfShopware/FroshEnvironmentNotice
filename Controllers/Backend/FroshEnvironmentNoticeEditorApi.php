@@ -81,12 +81,16 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
     public function ajaxMessagesInsertAction()
     {
-        $this->insertActionGeneric(Notice::class);
+        $this->insertActionGeneric(Notice::class, [
+            'slot' => Slot::class,
+        ]);
     }
 
     public function ajaxMessagesUpdateAction()
     {
-        $this->updateActionGeneric($this->noticeRepository);
+        $this->updateActionGeneric($this->noticeRepository, [
+            'slot' => Slot::class,
+        ]);
     }
 
     public function ajaxMessagesDeleteAction()
@@ -141,14 +145,15 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
     /**
      * @param string $modelClass
+     * @param array  $relations
      */
-    protected function insertActionGeneric(string $modelClass)
+    protected function insertActionGeneric(string $modelClass, array $relations = [])
     {
         $data = $this->Request()->getPost();
         unset($data['id']);
         /** @var ModelEntity $model */
         $model = new $modelClass();
-        $model->fromArray($data);
+        $model->fromArray($this->hydrateRelatedEntitiesInArray($data, $relations));
 
         $this->getModelManager()->persist($model);
         try {
@@ -161,8 +166,9 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
     /**
      * @param ModelRepository $repository
+     * @param array           $relations
      */
-    protected function updateActionGeneric(ModelRepository $repository)
+    protected function updateActionGeneric(ModelRepository $repository, array $relations = [])
     {
         if (($model = $this->findModelOrFailResponse($repository, $this->Request()->getPost('id'))) === false) {
             return;
@@ -170,7 +176,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
         $data = $this->Request()->getPost();
         unset($data['id']);
-        $model->fromArray($data);
+        $model->fromArray($this->hydrateRelatedEntitiesInArray($data, $relations));
 
         $this->getModelManager()->persist($model);
         try {
@@ -245,5 +251,25 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
             'message' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
         ]);
+    }
+
+    /**
+     * @param array $data
+     * @param array $relations
+     *
+     * @return array
+     */
+    protected function hydrateRelatedEntitiesInArray(array $data, array $relations)
+    {
+        foreach ($relations as $relationName => $relationModelClass) {
+            try {
+                $relationObject = $this->getModelManager()->find($relationModelClass, $data[$relationName]['id']);
+            } catch (Exception $exception) {
+                // TODO log it like it is hot
+            }
+            $data[$relationName] = $relationObject;
+        }
+
+        return $data;
     }
 }
