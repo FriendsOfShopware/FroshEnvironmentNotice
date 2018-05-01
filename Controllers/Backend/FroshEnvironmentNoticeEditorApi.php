@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Util\ClassUtils;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\CSRFWhitelistAware;
@@ -125,29 +127,31 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
 
     /**
      * @param ModelRepository $repository
+     * @param int             $relationDepth
      */
-    protected function listActionGeneric(ModelRepository $repository)
+    protected function listActionGeneric(ModelRepository $repository, int $relationDepth = 3)
     {
-        $this->setResponseData(200, $repository->findAll(), 'items');
+        $this->setResponseData(200, $this->dehydrateDoctrineModel($repository->findAll(), $relationDepth), 'items');
     }
 
     /**
      * @param ModelRepository $repository
      */
-    protected function getActionGeneric(ModelRepository $repository)
+    protected function getActionGeneric(ModelRepository $repository, int $relationDepth = 2)
     {
         if (($model = $this->findModelOrFailResponse($repository, (int) $this->Request()->get('id'))) === false) {
             return;
         }
 
-        $this->setResponseData(200, $model);
+        $this->setResponseData(200, $this->dehydrateDoctrineModel($model, $relationDepth));
     }
 
     /**
      * @param string $modelClass
      * @param array  $relations
+     * @param int    $relationDepth
      */
-    protected function insertActionGeneric(string $modelClass, array $relations = [])
+    protected function insertActionGeneric(string $modelClass, array $relations = [], int $relationDepth = 2)
     {
         $data = $this->Request()->getPost();
         unset($data['id']);
@@ -158,7 +162,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->getModelManager()->persist($model);
         try {
             $this->getModelManager()->flush($model);
-            $this->setResponseData(201, $model);
+            $this->setResponseData(201, $this->dehydrateDoctrineModel($model, $relationDepth));
         } catch (\Doctrine\ORM\OptimisticLockException $e) {
             $this->setResponseException($e);
         }
@@ -168,7 +172,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
      * @param ModelRepository $repository
      * @param array           $relations
      */
-    protected function updateActionGeneric(ModelRepository $repository, array $relations = [])
+    protected function updateActionGeneric(ModelRepository $repository, array $relations = [], int $relationDepth = 2)
     {
         if (($model = $this->findModelOrFailResponse($repository, $this->Request()->getPost('id'))) === false) {
             return;
@@ -181,7 +185,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->getModelManager()->persist($model);
         try {
             $this->getModelManager()->flush($model);
-            $this->setResponseData(200, $model);
+            $this->setResponseData(200, $this->dehydrateDoctrineModel($model, $relationDepth));
         } catch (\Doctrine\ORM\OptimisticLockException $e) {
             $this->setResponseException($e);
         }
@@ -271,5 +275,67 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         }
 
         return $data;
+    }
+
+    /**
+     * Modified variant of Doctrine\Common\Util\Debug::export
+     *
+     * @param $var
+     * @param int $maxDepth
+     *
+     * @return array|mixed
+     */
+    protected function dehydrateDoctrineModel($var, int $maxDepth)
+    {
+        $return = null;
+        $isObj = is_object($var);
+
+        if ($var instanceof Collection) {
+            $var = $var->toArray();
+        }
+
+        if ($maxDepth) {
+            if (is_array($var)) {
+                $return = [];
+                foreach ($var as $k => $v) {
+                    $return[$k] = $this->dehydrateDoctrineModel($v, $maxDepth - 1);
+                }
+
+                return $return;
+            } elseif ($isObj) {
+                $return = new \stdclass();
+
+                if ($var instanceof \DateTime) {
+                    $return->date = $var->format('c');
+                    $return->timezone = $var->getTimeZone()->getName();
+                } else {
+                    /** @noinspection PhpParamsInspection */
+                    $reflClass = ClassUtils::newReflectionObject($var);
+
+                    if ($var instanceof \ArrayObject || $var instanceof \ArrayIterator) {
+                        $return = $this->dehydrateDoctrineModel($var->getArrayCopy(), $maxDepth - 1);
+                    }
+
+                    foreach ($reflClass->getProperties() as $reflProperty) {
+                        $name = $reflProperty->getName();
+                        $reflProperty->setAccessible(true);
+                        $return->$name = $this->dehydrateDoctrineModel($reflProperty->getValue($var), $maxDepth - 1);
+                    }
+                }
+
+                return $return;
+            }
+
+            return $var;
+        }
+        if (is_object($var) || is_array($var)) {
+            if (method_exists($var, 'getId')) {
+                return $var->getId();
+            }
+        } else {
+            return $var;
+        }
+
+        return null;
     }
 }

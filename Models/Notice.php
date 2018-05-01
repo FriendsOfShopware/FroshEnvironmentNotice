@@ -38,6 +38,13 @@ class Notice extends ModelEntity implements JsonSerializable
     private $message;
 
     /**
+     * @var Slot
+     *
+     * @ORM\ManyToOne(targetEntity="FroshEnvironmentNotice\Models\Slot", inversedBy="notices", fetch="EAGER")
+     */
+    private $slot;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -98,6 +105,26 @@ class Notice extends ModelEntity implements JsonSerializable
     }
 
     /**
+     * @return Slot
+     */
+    public function getSlot(): Slot
+    {
+        return $this->slot;
+    }
+
+    /**
+     * @param Slot $slot
+     *
+     * @return Notice
+     */
+    public function setSlot(Slot $slot): Notice
+    {
+        $this->slot = $slot;
+
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function jsonSerialize()
@@ -106,6 +133,7 @@ class Notice extends ModelEntity implements JsonSerializable
             'id' => $this->getId(),
             'message' => $this->getMessage(),
             'name' => $this->getName(),
+            'slot' => $this->getSlot(),
         ];
     }
 }

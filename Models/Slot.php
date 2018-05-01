@@ -2,6 +2,7 @@
 
 namespace FroshEnvironmentNotice\Models;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Shopware\Components\Model\ModelEntity;
@@ -36,6 +37,13 @@ class Slot extends ModelEntity implements JsonSerializable
      * @ORM\Column(name="style", type="string", nullable=false)
      */
     private $style;
+
+    /**
+     * @ORM\OneToMany(targetEntity="FroshEnvironmentNotice\Models\Notice", mappedBy="slot", orphanRemoval=true, cascade={"persist"}, fetch="EAGER")
+     *
+     * @var Collection
+     */
+    private $notices;
 
     /**
      * @return int
@@ -87,11 +95,33 @@ class Slot extends ModelEntity implements JsonSerializable
 
     /**
      * @param string $style
+     *
      * @return Slot
      */
     public function setStyle(string $style): Slot
     {
         $this->style = $style;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getNotices(): Collection
+    {
+        return $this->notices;
+    }
+
+    /**
+     * @param Collection $notices
+     *
+     * @return Slot
+     */
+    public function setNotices(Collection $notices): Slot
+    {
+        $this->notices = $notices;
+
         return $this;
     }
 
@@ -104,6 +134,7 @@ class Slot extends ModelEntity implements JsonSerializable
             'id' => $this->getId(),
             'style' => $this->getStyle(),
             'name' => $this->getName(),
+            'notices' => $this->getNotices()->getValues(),
         ];
     }
 }
