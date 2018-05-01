@@ -27,6 +27,13 @@
                             horizontal>
                 <b-form-input id="inputMessage" v-model="item.message"/>
               </b-form-group>
+              <b-form-group id="fieldSlot"
+                            v-bind:label-cols="3"
+                            label="Slot"
+                            label-for="inputSlot"
+                            horizontal>
+                <b-form-select id="inputSlot" v-model="item.slot.id" v-bind:options="slots" text-field="name" value-field="id"/>
+              </b-form-group>
             </template>
           </collection-editor>
         </b-tab>
@@ -49,6 +56,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import CollectionEditor from './components/CollectionEditor';
 
 export default {
@@ -64,6 +72,11 @@ export default {
         message: {
           sortable: true,
         },
+        slot: {
+          label: 'Slot',
+          key: 'slot.name',
+          sortable: true,
+        },
       },
       slotsFields: {
         name: {
@@ -77,13 +90,30 @@ export default {
       defaultMessage: {
         name: '',
         message: '',
+        slot: null,
       },
       alerts: [],
+      slots: [],
     };
+  },
+  created() {
+    this.loadSlots();
   },
   methods: {
     addAlert(alertData) {
       this.alerts.push(alertData);
+    },
+    loadSlots() {
+      axios.get('ajaxSlotsList')
+        .then((response) => {
+          this.slots = response.data.items;
+
+          if (this.slots.length) {
+            this.defaultMessage.slot = {
+              id: this.slots[0].id,
+            };
+          }
+        });
     },
   },
 };
