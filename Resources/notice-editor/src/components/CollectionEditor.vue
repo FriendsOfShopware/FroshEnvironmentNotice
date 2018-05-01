@@ -134,7 +134,9 @@
           });
       },
       saveItem(item) {
-        axios.post(`ajax${this.apiKey}Update`, item)
+        const specificItem = ['id', ...Object.keys(this.defaultItem)]
+          .reduce((result, key) => ({ ...result, [key]: item[key] }), {});
+        axios.post(`ajax${this.apiKey}Update`, specificItem)
           .then((response) => {
             this.items.splice(this.items.indexOf(item), 1, response.data.data);
           })

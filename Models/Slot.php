@@ -2,6 +2,8 @@
 
 namespace FroshEnvironmentNotice\Models;
 
+use ArrayAccess;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
@@ -114,13 +116,13 @@ class Slot extends ModelEntity implements JsonSerializable
     }
 
     /**
-     * @param Collection $notices
+     * @param ArrayAccess|Collection|array $notices
      *
      * @return Slot
      */
-    public function setNotices(Collection $notices): Slot
+    public function setNotices($notices): Slot
     {
-        $this->notices = $notices;
+        $this->notices = new ArrayCollection($notices);
 
         return $this;
     }

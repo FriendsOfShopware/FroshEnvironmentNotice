@@ -39,15 +39,25 @@
         </b-tab>
         <b-tab title="Slots">
           <collection-editor v-bind:fields="slotsFields" api-key="Slots" v-bind:default-item="defaultSlot" v-on:error="addAlert">
-            <b-form-group id="fieldName"
-                          label="Name"
-                          label-for="inputName"
-                          v-bind:label-cols="3"
-                          slot-scope="{ item }"
-                          slot="detail"
-                          horizontal>
-              <b-form-input id="inputName" v-model="item.name"/>
-            </b-form-group>
+            <template slot-scope="{ item }" slot="detail">
+              <b-form-group id="fieldName"
+                            label="Name"
+                            label-for="inputName"
+                            v-bind:label-cols="3"
+                            horizontal>
+                <b-form-input id="inputName" v-model="item.name"/>
+              </b-form-group>
+              <b-form-group id="fieldStyle"
+                            label="Style"
+                            label-for="inputStyle"
+                            v-bind:label-cols="3"
+                            horizontal>
+                <b-form-textarea id="inputStyle"
+                                 v-model="item.style"
+                                 placeholder="Enter style in less code"
+                                 v-bind:rows="item.style.split('\n').length + 1"/>
+              </b-form-group>
+            </template>
           </collection-editor>
         </b-tab>
       </b-tabs>
@@ -85,7 +95,7 @@ export default {
       },
       defaultSlot: {
         name: '',
-        style: {},
+        style: '',
       },
       defaultMessage: {
         name: '',
