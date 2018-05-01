@@ -27,6 +27,8 @@
 
         <!-- Services -->
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>
-        <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder"/>
+        <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder">
+            <argument type="service" id="oyejorge_compiler"/>
+        </service>
     </services>
 </container>
