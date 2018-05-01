@@ -2,17 +2,20 @@
 
 namespace FroshEnvironmentNotice\Models;
 
+use ArrayAccess;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Shopware\Components\Model\ModelEntity;
 
 /**
- * Class Notice
+ * Class Slot
  *
  * @ORM\Entity()
- * @ORM\Table(name="frosh_environment_notices")
+ * @ORM\Table(name="frosh_environment_notice_slots")
  */
-class Notice extends ModelEntity implements JsonSerializable
+class Slot extends ModelEntity implements JsonSerializable
 {
     /**
      * @var int
@@ -33,16 +36,16 @@ class Notice extends ModelEntity implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="message", type="string", nullable=false)
+     * @ORM\Column(name="style", type="string", nullable=false)
      */
-    private $message;
+    private $style;
 
     /**
-     * @var Slot
+     * @ORM\OneToMany(targetEntity="FroshEnvironmentNotice\Models\Notice", mappedBy="slot", orphanRemoval=true, cascade={"persist"}, fetch="EAGER")
      *
-     * @ORM\ManyToOne(targetEntity="FroshEnvironmentNotice\Models\Slot", inversedBy="notices", fetch="EAGER")
+     * @var Collection
      */
-    private $slot;
+    private $notices;
 
     /**
      * @return int
@@ -55,9 +58,9 @@ class Notice extends ModelEntity implements JsonSerializable
     /**
      * @param int $id
      *
-     * @return Notice
+     * @return Slot
      */
-    public function setId(int $id): Notice
+    public function setId(int $id): Slot
     {
         $this->id = $id;
 
@@ -75,9 +78,9 @@ class Notice extends ModelEntity implements JsonSerializable
     /**
      * @param string $name
      *
-     * @return Notice
+     * @return Slot
      */
-    public function setName(string $name): Notice
+    public function setName(string $name): Slot
     {
         $this->name = $name;
 
@@ -87,39 +90,39 @@ class Notice extends ModelEntity implements JsonSerializable
     /**
      * @return string
      */
-    public function getMessage(): string
+    public function getStyle(): string
     {
-        return $this->message;
+        return $this->style;
     }
 
     /**
-     * @param string $message
+     * @param string $style
      *
-     * @return Notice
+     * @return Slot
      */
-    public function setMessage(string $message): Notice
+    public function setStyle(string $style): Slot
     {
-        $this->message = $message;
+        $this->style = $style;
 
         return $this;
     }
 
     /**
-     * @return Slot
+     * @return Collection
      */
-    public function getSlot(): Slot
+    public function getNotices(): Collection
     {
-        return $this->slot;
+        return $this->notices;
     }
 
     /**
-     * @param Slot $slot
+     * @param ArrayAccess|Collection|array $notices
      *
-     * @return Notice
+     * @return Slot
      */
-    public function setSlot(Slot $slot): Notice
+    public function setNotices($notices): Slot
     {
-        $this->slot = $slot;
+        $this->notices = new ArrayCollection($notices);
 
         return $this;
     }
@@ -131,9 +134,9 @@ class Notice extends ModelEntity implements JsonSerializable
     {
         return [
             'id' => $this->getId(),
-            'message' => $this->getMessage(),
+            'style' => $this->getStyle(),
             'name' => $this->getName(),
-            'slot' => $this->getSlot(),
+            'notices' => $this->getNotices()->getValues(),
         ];
     }
 }

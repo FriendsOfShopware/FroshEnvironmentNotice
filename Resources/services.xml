@@ -4,6 +4,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
         <parameter key="frosh_environment_notice.view_dir">%frosh_environment_notice.plugin_dir%/Resources/views</parameter>
+        <parameter key="frosh_environment_notice.seeds.slots">%frosh_environment_notice.plugin_dir%/Resources/seeds/slots.json</parameter>
     </parameters>
     <services>
         <!-- Subscribers -->
@@ -19,9 +20,15 @@
             <factory service="models" method="getRepository"/>
             <argument type="string">FroshEnvironmentNotice\Models\Notice</argument>
         </service>
+        <service id="frosh.environment_notice.repository.slot" class="Shopware\Components\Model\ModelRepository">
+            <factory service="models" method="getRepository"/>
+            <argument type="string">FroshEnvironmentNotice\Models\Slot</argument>
+        </service>
 
         <!-- Services -->
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>
-        <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder"/>
+        <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder">
+            <argument type="service" id="oyejorge_compiler"/>
+        </service>
     </services>
 </container>

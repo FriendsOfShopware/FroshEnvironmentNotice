@@ -6,6 +6,7 @@ use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Plugins_ViewRenderer_Bootstrap;
 use Enlight_Event_EventArgs;
 use FroshEnvironmentNotice\Models\Notice;
+use FroshEnvironmentNotice\Models\Slot;
 use FroshEnvironmentNotice\Services\ModifyHtmlText;
 use FroshEnvironmentNotice\Services\NoticeMarkupBuilder;
 use Shopware\Components\Model\ModelRepository;
@@ -30,9 +31,9 @@ class NoticeInjection implements SubscriberInterface
     /**
      * NoticeInjection constructor.
      *
-     * @param ModifyHtmlText $htmlTextModifier
+     * @param ModifyHtmlText      $htmlTextModifier
      * @param NoticeMarkupBuilder $markupBuilder
-     * @param ModelRepository $noticeRepository
+     * @param ModelRepository     $noticeRepository
      */
     public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder, ModelRepository $noticeRepository)
     {
@@ -66,35 +67,39 @@ class NoticeInjection implements SubscriberInterface
             return;
         }
 
-        /** @var Notice|null $notice */
-        $notice = $this->noticeRepository->findOneBy([
+        /** @var Notice[] $notices */
+        $notices = $this->noticeRepository->findBy([
             'name' => $module,
         ]);
 
-        if (is_null($notice)) {
-            return;
+        $slots = [];
+
+        foreach ($notices as $notice) {
+            if (array_key_exists($notice->getSlot()->getId(), $slots)) {
+                $slots[$notice->getSlot()->getId()]['items'][] = $notice;
+            } else {
+                $slots[$notice->getSlot()->getId()] = [
+                    'slot' => $notice->getSlot(),
+                    'items' => [$notice],
+                ];
+            }
         }
 
-        $message = $notice->getMessage();
+        foreach ($slots as $slot) {
+            /** @var Slot $slotItem */
+            $slotItem = $slot['slot'];
 
-        $args->setReturn(
-            $this->htmlTextModifier->insertAfterTag(
-                'body',
-                $this->markupBuilder->buildNotice([
-                    'position' => 'fixed',
-                    'top' => '10px',
-                    'right' => '10px',
-                    'border-radius' => '5px',
-                    'padding' => '15px',
-                    'color' => 'white',
-                    'background' => 'red',
-                    'font-weight' => 'bold',
-                    'z-index' => '9999999999',
-                    'font-size' => '1.2em',
-                    'pointer-events' => 'none',
-                ], $message),
-                $args->getReturn()
-            )
-        );
+            $messages = array_map(function (Notice $notice) {
+                return $notice->getMessage();
+            }, $slot['items']);
+
+            $args->setReturn(
+                $this->htmlTextModifier->insertAfterTag(
+                    'body',
+                    $this->markupBuilder->buildNoticeInSlot(join(PHP_EOL, $messages), $slotItem),
+                    $args->getReturn()
+                )
+            );
+        }
     }
 }
