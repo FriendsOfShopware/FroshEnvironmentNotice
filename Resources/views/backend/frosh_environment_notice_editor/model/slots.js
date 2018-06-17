@@ -1,10 +1,23 @@
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.model.Slots', {
     extend : 'Ext.data.Model', 
-    fields : [ 'id', 'name', 'style' ],
+    fields : [
+        {
+            name: 'id',
+            type: 'int',
+            useNull: true
+        },
+        {
+            name: 'name',
+            type: 'string'
+        },
+        {
+            name: 'style',
+            type: 'string'
+        }
+    ],
     proxy: {
         type : 'ajax',
         api:{
-            read:   '{url controller="FroshEnvironmentNoticeEditorApi" action="ajaxSlotsGet"}',
             create : '{url controller="FroshEnvironmentNoticeEditorApi" action="ajaxSlotsInsert"}',
             update : '{url controller="FroshEnvironmentNoticeEditorApi" action="ajaxSlotsUpdate"}',
             destroy : '{url controller="FroshEnvironmentNoticeEditorApi" action="ajaxSlotsDelete"}'

@@ -10,6 +10,13 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
         me.columns = me.getColumns();
         me.pagingbar = me.getPagingBar();
         me.dockedItems = [
+                {
+                    xtype: 'toolbar',
+                    dock: 'top',
+                    cls: 'shopware-toolbar',
+                    ui: 'shopware-ui',
+                    items: me.getButtons()
+                },
                 me.pagingbar
             ];
         me.callParent(arguments);
@@ -31,6 +38,8 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
         ];
     },
     getActionColumnItems: function () {
+        var me = this;
+
         return [
             {
                 iconCls:'x-action-col-icon sprite-pencil',
@@ -46,7 +55,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
             },
             {
                 iconCls:'x-action-col-icon sprite-minus-circle-frame',
-                tooltip:'{s name="FroshEnvironmentNoticeEditorDelete"}Löschen{/s}',
+                tooltip:'{s name="FroshEnvironmentNoticeEditorDelete"}Delete{/s}',
                 getClass: function(value, metadata, record) {
                     if (!record.get("id")) {
                         return 'x-hidden';
@@ -66,5 +75,17 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
             dock: 'bottom',
             displayInfo: true
         });
+    },
+    getButtons : function() {
+        var me = this;
+
+        return [
+            {
+                text: '{s name="FroshEnvironmentNoticeEditorAdd"}Add{/s}',
+                scope: me,
+                iconCls: 'sprite-plus-circle-frame',
+                action: 'addSlot'
+            }
+        ];
     }
 });
