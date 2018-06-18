@@ -16,7 +16,8 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.model.Messages', {
         },
         {
             name: 'slotID',
-            type: 'int'
+            type: 'int',
+            useNull: true
         }
     ],
     idProperty: 'id',

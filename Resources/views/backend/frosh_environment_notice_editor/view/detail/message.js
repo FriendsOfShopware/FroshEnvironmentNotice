@@ -65,9 +65,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Message', {
                 store: me.slotStore,
                 valueField: 'id',
                 displayField: 'name',
-                allowBlank: true,
-                pageSize: true,
-                matchFieldWidth: false
+                allowBlank: false
             }
         ];
     },
@@ -75,10 +73,17 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Message', {
     {
         var me = this;
         return [
+            '->',
             {
                 text: '{s name="FroshEnvironmentNoticeEditorCancel"}Cancel{/s}',
                 scope: me,
-                cls: 'secondary'
+                cls: 'secondary',
+                handler: function() {
+                    var me = this,
+                        win = me.up('window');
+
+                    win.destroy();
+                }
             },
             {
                 text: '{s name="FroshEnvironmentNoticeEditorSave"}Save{/s}',

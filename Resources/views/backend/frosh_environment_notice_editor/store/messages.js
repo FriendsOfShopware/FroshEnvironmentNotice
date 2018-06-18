@@ -9,8 +9,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.store.Messages', {
         url: '{url controller="FroshEnvironmentNoticeEditorApi" action="ajaxMessagesList"}',
         reader: {
             type: 'json',
-            root: 'items',
-            totalProperty: 'total'
+            root: 'items'
         }
     }
 });

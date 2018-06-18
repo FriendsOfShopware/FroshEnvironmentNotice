@@ -5,7 +5,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.MessageWindow
     border: false,
     autoShow: true,
     layout: 'fit',
-    height: 600,
+    height: 300,
     width: 800,
     modal: true,
     initComponent: function() {

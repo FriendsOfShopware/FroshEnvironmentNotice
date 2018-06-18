@@ -74,11 +74,11 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                     win.close();
                     Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorMessageSave"}Message saved{/s}', '');
                 },
-                failure: function(rec, op) {
+                failure: function() {
                     store.load();
                     win.close();
                     Shopware.Msg.createGrowlMessage('',
-                        '{s name="FroshEnvironmentNoticeEditorMessageError"}Error saving message {/s}'+op.request.scope.reader.jsonData["message"],
+                        '{s name="FroshEnvironmentNoticeEditorMessageError"}Error saving message{/s}',
                         '');
                 }
             });
@@ -102,11 +102,11 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                     win.close();
                     Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorSlotSave"}Slot saved{/s}', '');
                 },
-                failure: function(rec, op) {
+                failure: function() {
                     store.load();
                     win.close();
                     Shopware.Msg.createGrowlMessage('',
-                        '{s name="FroshEnvironmentNoticeEditorMessageError"}Error saving slot {/s}'+op.request.scope.reader.jsonData["message"],
+                        '{s name="FroshEnvironmentNoticeEditorMessageError"}Error saving slot{/s}',
                         '');
                 }
             });

@@ -8,7 +8,6 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Messages', {
     initComponent:function () {
         var me = this;
         me.columns = me.getColumns();
-        me.pagingbar = me.getPagingBar();
         me.dockedItems = [
                 {
                     xtype: 'toolbar',
@@ -16,8 +15,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Messages', {
                     cls: 'shopware-toolbar',
                     ui: 'shopware-ui',
                     items: me.getButtons()
-                },
-                me.pagingbar
+                }
             ];
         me.callParent(arguments);
     },
@@ -84,15 +82,6 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Messages', {
                 }
             }
         ];
-    },
-    getPagingBar: function () {
-        var me = this;
-
-        return Ext.create('Ext.toolbar.Paging', {
-            store: me.store,
-            dock: 'bottom',
-            displayInfo: true
-        });
     },
     getButtons : function() {
         var me = this;
