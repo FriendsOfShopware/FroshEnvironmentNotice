@@ -47,7 +47,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
             },
             'env-notice-editor-messages-grid': {
                 openMessageDetail: me.openMessageDetail,
-                deleteMEssage: me.deleteMessage
+                deleteMessage: me.deleteMessage
             },
             'env-notice-editor-slots-grid': {
                 openSlotDetail: me.openSlotDetail,
@@ -63,8 +63,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
             form = win.down('form'),
             formBasis = form.getForm(),
             store = me.getStore('Messages'),
-            record = Ext.create('Shopware.apps.FroshEnvironmentNoticeEditor.model.Messages'),
-            slot = Ext.create('Shopware.apps.FroshEnvironmentNoticeEditor.model.Slots');
+            record = formBasis.getRecord();
 
         formBasis.updateRecord(record);
 
@@ -91,8 +90,8 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
             win = btn.up('window'),
             form = win.down('form'),
             formBasis = form.getForm(),
-            store = me.getStore('Messages'),
-            record = Ext.create('Shopware.apps.FroshEnvironmentNoticeEditor.model.Messages');
+            store = me.getStore('Slots'),
+            record = formBasis.getRecord();
 
         formBasis.updateRecord(record);
 
@@ -147,7 +146,24 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
     },
 
     deleteMessage: function (view, rowIndex) {
+        var me = this,
+            store = me.getStore('Messages');
 
+        me.record = store.getAt(rowIndex);
+
+        if (me.record instanceof Ext.data.Model && me.record.get('id') > 0) {
+            Ext.MessageBox.confirm('', '{s name="FroshEnvironmentNoticeEditorDeleteWarning"}Are you sure you want to delete?{/s}' , function (response) {
+                if ( response !== 'yes' ) {
+                    return;
+                }
+                me.record.destroy({
+                    callback: function() {
+                        Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorDeleteSuccess"}Entry was deleted{/s}', '');
+                        store.load();
+                    }
+                });
+            });
+        }
     },
 
     openSlotDetail: function (view, rowIndex) {
@@ -161,7 +177,24 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
     },
 
     deleteSlot: function (view, rowIndex) {
+        var me = this,
+            store = me.getStore('Slots');
 
+        me.record = store.getAt(rowIndex);
+
+        if (me.record instanceof Ext.data.Model && me.record.get('id') > 0) {
+            Ext.MessageBox.confirm('', '{s name="FroshEnvironmentNoticeEditorDeleteWarning"}Are you sure you want to delete?{/s}' , function (response) {
+                if ( response !== 'yes' ) {
+                    return;
+                }
+                me.record.destroy({
+                    callback: function() {
+                        Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorDeleteSuccess"}Entry was deleted{/s}', '');
+                        store.load();
+                    }
+                });
+            });
+        }
     }
    
 });

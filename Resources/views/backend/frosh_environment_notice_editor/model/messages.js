@@ -19,6 +19,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.model.Messages', {
             type: 'int'
         }
     ],
+    idProperty: 'id',
     associations: [
         {
             type: 'hasOne',

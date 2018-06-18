@@ -15,6 +15,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.model.Slots', {
             type: 'string'
         }
     ],
+    idProperty: 'id',
     proxy: {
         type : 'ajax',
         api:{
