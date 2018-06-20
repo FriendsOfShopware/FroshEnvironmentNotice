@@ -67,7 +67,7 @@ class FroshEnvironmentNotice extends Plugin
         $amountOfSlots = $this->getModelManager()->getRepository(Slot::class)->createQueryBuilder('slot')->getMaxResults();
 
         if (!$amountOfSlots) {
-            $datas = json_decode(file_get_contents($this->container->getParameter('frosh_environment_notice.seeds.slots')), true);
+            $datas = json_decode(file_get_contents($this->getPath() . '/Resources/seeds/slots.json'), true);
             /** @var ModelEntity[] $models */
             $models = array_map(function ($data) {
                 return (new Slot())->fromArray($data);

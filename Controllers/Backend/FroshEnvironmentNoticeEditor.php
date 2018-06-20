@@ -2,7 +2,7 @@
 
 use Shopware\Components\CSRFWhitelistAware;
 
-class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditor extends Enlight_Controller_Action implements CSRFWhitelistAware
+class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditor extends Shopware_Controllers_Backend_ExtJs implements CSRFWhitelistAware
 {
     /**
      * {@inheritdoc}
@@ -22,5 +22,6 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditor extends Enlight_
 
     public function indexAction()
     {
+        $this->View()->loadTemplate("backend/frosh_environment_notice_editor/app.js");
     }
 }
