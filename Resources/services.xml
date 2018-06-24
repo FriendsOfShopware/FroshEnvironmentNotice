@@ -40,5 +40,11 @@
             <tag name="frosh_environment_notice.condition"/>
             <argument type="service" id="service_container"/>
         </service>
+        <service class="FroshEnvironmentNotice\Services\NoticeInjectActions\HtmlResponseSlotNoticeInjectAction" id="frosh_environment_notice.services.notice_inject_actions.html_response_slot_notice_inject_action">
+            <tag name="frosh_environment_notice.notice_inject_action"/>
+            <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
+            <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
+            <argument type="service" id="frosh.environment_notice.repository.notice"/>
+        </service>
     </services>
 </container>
