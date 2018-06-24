@@ -62,8 +62,7 @@ class NoticeInjection implements SubscriberInterface
 
         $module = strtolower($bootstrap->Front()->Request()->getModuleName());
 
-        if ($module === 'widget' ||
-            $bootstrap->Front()->Request()->getControllerName() === 'FroshEnvironmentNoticeEditor') {
+        if ($module === 'widget') {
             return;
         }
 
