@@ -1,3 +1,4 @@
+/* TODO refactor duplicate code */
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
 
     extend: 'Ext.app.Controller',
@@ -35,6 +36,11 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                     this.onSlotSave(btn);
                 }
             },
+            'env-notice-editor-detail-trigger button[action=save]': {
+                'click': function(btn) {
+                    this.onTriggerSave(btn);
+                }
+            },
             'env-notice-editor-messages-grid button[action=addMessage]': {
                 'click': function (btn) {
                     this.addMessage(btn);
@@ -45,6 +51,11 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                     this.addSlot(btn);
                 }
             },
+            'env-notice-editor-triggers-grid button[action=addTrigger]': {
+                'click': function (btn) {
+                    this.addTrigger(btn);
+                }
+            },
             'env-notice-editor-messages-grid': {
                 openMessageDetail: me.openMessageDetail,
                 deleteMessage: me.deleteMessage
@@ -52,6 +63,10 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
             'env-notice-editor-slots-grid': {
                 openSlotDetail: me.openSlotDetail,
                 deleteSlot: me.deleteSlot
+            },
+            'env-notice-editor-triggers-grid': {
+                openSlotDetail: me.openTriggerDetail,
+                deleteSlot: me.deleteTrigger
             }
         });
 
@@ -113,6 +128,34 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
         }
     },
 
+    onTriggerSave: function (btn) {
+        var me = this,
+            win = btn.up('window'),
+            form = win.down('form'),
+            formBasis = form.getForm(),
+            store = me.getStore('Triggers'),
+            record = formBasis.getRecord();
+
+        formBasis.updateRecord(record);
+
+        if (formBasis.isValid()) {
+            record.save({
+                success: function() {
+                    store.load();
+                    win.close();
+                    Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorTriggerSave"}Trigger saved{/s}', '');
+                },
+                failure: function() {
+                    store.load();
+                    win.close();
+                    Shopware.Msg.createGrowlMessage('',
+                        '{s name="FroshEnvironmentNoticeEditorTriggerSaveError"}Error saving trigger{/s}',
+                        '');
+                }
+            });
+        }
+    },
+
     addMessage: function () {
         var me = this;
 
@@ -130,6 +173,16 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
         me.record = Ext.create('Shopware.apps.FroshEnvironmentNoticeEditor.model.Slots');
 
         me.getView('detail.SlotWindow').create({
+            record: me.record
+        }).show();
+    },
+
+    addTrigger: function () {
+        var me = this;
+
+        me.record = Ext.create('Shopware.apps.FroshEnvironmentNoticeEditor.model.Triggers');
+
+        me.getView('detail.TriggerWindow').create({
             record: me.record
         }).show();
     },
@@ -179,6 +232,37 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
     deleteSlot: function (view, rowIndex) {
         var me = this,
             store = me.getStore('Slots');
+
+        me.record = store.getAt(rowIndex);
+
+        if (me.record instanceof Ext.data.Model && me.record.get('id') > 0) {
+            Ext.MessageBox.confirm('', '{s name="FroshEnvironmentNoticeEditorDeleteWarning"}Are you sure you want to delete?{/s}' , function (response) {
+                if ( response !== 'yes' ) {
+                    return;
+                }
+                me.record.destroy({
+                    callback: function() {
+                        Shopware.Msg.createGrowlMessage('','{s name="FroshEnvironmentNoticeEditorDeleteSuccess"}Entry was deleted{/s}', '');
+                        store.load();
+                    }
+                });
+            });
+        }
+    },
+
+    openTriggerDetail: function (view, rowIndex) {
+        var me = this;
+
+        me.record = me.getStore('Triggers').getAt(rowIndex);
+
+        me.getView('detail.TriggerWindow').create({
+            record: me.record
+        }).show();
+    },
+
+    deleteTrigger: function (view, rowIndex) {
+        var me = this,
+            store = me.getStore('Triggers');
 
         me.record = store.getAt(rowIndex);
 
