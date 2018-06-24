@@ -88,7 +88,23 @@ class FroshEnvironmentNotice extends Plugin
                 return (new Slot())->fromArray($data);
             }, $datas);
             array_walk($models, [$this->getModelManager(), 'persist']);
-            /** @noinspection PhpUnhandledExceptionInspection */
+            /* @noinspection PhpUnhandledExceptionInspection */
+            $this->getModelManager()->flush($models);
+        }
+
+        $amountOfTrigger = $this->getModelManager()
+            ->getRepository(Trigger::class)
+            ->createQueryBuilder('slot')
+            ->getMaxResults();
+
+        if (!$amountOfTrigger) {
+            $datas = json_decode(file_get_contents($this->getPath() . '/Resources/seeds/triggers.json'), true);
+            /** @var ModelEntity[] $models */
+            $models = array_map(function ($data) {
+                return (new Trigger())->fromArray($data);
+            }, $datas);
+            array_walk($models, [$this->getModelManager(), 'persist']);
+            /* @noinspection PhpUnhandledExceptionInspection */
             $this->getModelManager()->flush($models);
         }
     }

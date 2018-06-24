@@ -65,10 +65,6 @@ class NoticeInjection implements SubscriberInterface
 
         $module = strtolower($bootstrap->Front()->Request()->getModuleName());
 
-        if ($module === 'widget') {
-            return;
-        }
-
         /** @var Trigger $trigger */
         foreach ($this->triggerRepository->findAll() as $trigger) {
             if (!is_null($condition = $this->getCondition($trigger->getConditionType()))) {
