@@ -30,5 +30,8 @@
         <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder">
             <argument type="service" id="oyejorge_compiler"/>
         </service>
+        <service id="frosh_environment_notice.services.conditions" class="Doctrine\Common\Collections\ArrayCollection">
+            <argument type="collection"/>
+        </service>
     </services>
 </container>

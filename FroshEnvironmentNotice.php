@@ -4,6 +4,7 @@ namespace FroshEnvironmentNotice;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
+use FroshEnvironmentNotice\Components\Bootstrap\ConditionsCollectionPass;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\Model\ModelEntity;
@@ -12,6 +13,7 @@ use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Components\Plugin\Context\UpdateContext;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class FroshEnvironmentNotice extends Plugin
 {
@@ -50,6 +52,15 @@ class FroshEnvironmentNotice extends Plugin
     {
         parent::uninstall($context);
         $this->uninstallSchema();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+        $container->addCompilerPass(new ConditionsCollectionPass());
     }
 
     private function installSchema()
