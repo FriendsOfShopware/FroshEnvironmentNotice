@@ -33,5 +33,8 @@
         <service id="frosh_environment_notice.services.conditions" class="Doctrine\Common\Collections\ArrayCollection">
             <argument type="collection"/>
         </service>
+        <service id="frosh_environment_notice.services.notice_inject_actions" class="Doctrine\Common\Collections\ArrayCollection">
+            <argument type="collection"/>
+        </service>
     </services>
 </container>

@@ -5,6 +5,7 @@ namespace FroshEnvironmentNotice;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
 use FroshEnvironmentNotice\Components\Bootstrap\ConditionsCollectionPass;
+use FroshEnvironmentNotice\Components\Bootstrap\NoticeInjectActionCollectionPass;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\Model\ModelEntity;
@@ -61,6 +62,7 @@ class FroshEnvironmentNotice extends Plugin
     {
         parent::build($container);
         $container->addCompilerPass(new ConditionsCollectionPass());
+        $container->addCompilerPass(new NoticeInjectActionCollectionPass());
     }
 
     private function installSchema()
