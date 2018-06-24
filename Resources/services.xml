@@ -36,5 +36,9 @@
         <service id="frosh_environment_notice.services.notice_inject_actions" class="Doctrine\Common\Collections\ArrayCollection">
             <argument type="collection"/>
         </service>
+        <service id="frosh_environment_notice.services.conditions.requested_module_condition" class="FroshEnvironmentNotice\Services\Conditions\RequestedModuleCondition">
+            <tag name="frosh_environment_notice.condition"/>
+            <argument type="service" id="service_container"/>
+        </service>
     </services>
 </container>
