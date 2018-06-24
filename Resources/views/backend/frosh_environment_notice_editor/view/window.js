@@ -16,6 +16,12 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.Window', {
                 flex: 1,
                 items: [
                     {
+                        title: '{s name="FroshEnvironmentNoticeEditorTriggersGridTitle"}Triggers{/s}',
+                        xtype: 'env-notice-editor-triggers-grid',
+                        store: me.triggersStore,
+                        flex: 1
+                    },
+                    {
                         title: '{s name="FroshEnvironmentNoticeEditorMessagesGridTitle"}Messages{/s}',
                         xtype: 'env-notice-editor-messages-grid',
                         store: me.messagesStore,
