@@ -1,7 +1,7 @@
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.store.Slots', {
     extend: 'Ext.data.Store',
     remoteFilter: true,
-    autoLoad : false,
+    autoLoad : true,
     model : 'Shopware.apps.FroshEnvironmentNoticeEditor.model.Slots',
     pageSize: 20,
     proxy: {

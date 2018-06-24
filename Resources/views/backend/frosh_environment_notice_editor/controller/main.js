@@ -8,19 +8,10 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
     init: function() {
         var me = this;
 
-        me.getStore('Messages').load({
-            scope: this,
-            callback: function() {
-                me.getStore('Slots').load({
-                    scope: this,
-                    callback: function() {
-                        me.mainWindow = me.getView('Window').create({
-                            messagesStore: me.getStore('Messages'),
-                            slotsStore: me.getStore('Slots')
-                        });
-                    }
-                });
-            }
+        me.mainWindow = me.getView('Window').create({
+            messagesStore: me.getStore('Messages'),
+            slotsStore: me.getStore('Slots'),
+            triggersStore: me.getStore('Triggers')
         });
 
         me.callParent(arguments);
@@ -65,8 +56,8 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                 deleteSlot: me.deleteSlot
             },
             'env-notice-editor-triggers-grid': {
-                openSlotDetail: me.openTriggerDetail,
-                deleteSlot: me.deleteTrigger
+                openTriggerDetail: me.openTriggerDetail,
+                deleteTrigger: me.deleteTrigger
             }
         });
 

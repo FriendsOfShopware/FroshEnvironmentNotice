@@ -55,6 +55,18 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Triggers', {
 
         return [
             {
+                iconCls:'x-action-col-icon sprite-pencil',
+                tooltip:'{s name="FroshEnvironmentNoticeEditorEdit"}Edit{/s}',
+                getClass: function(value, metadata, record) {
+                    if (!record.get("id")) {
+                        return 'x-hidden';
+                    }
+                },
+                handler:function (view, rowIndex, colIndex, item) {
+                    me.fireEvent('openTriggerDetail', view, rowIndex, colIndex, item);
+                }
+            },
+            {
                 iconCls:'x-action-col-icon sprite-minus-circle-frame',
                 tooltip:'{s name="FroshEnvironmentNoticeEditorDelete"}Delete{/s}',
                 getClass: function(value, metadata, record) {
@@ -72,6 +84,12 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Triggers', {
         var me = this;
 
         return [
+            {
+                text: '{s name="FroshEnvironmentNoticeEditorAdd"}Add{/s}',
+                scope: me,
+                iconCls: 'sprite-plus-circle-frame',
+                action: 'addTrigger'
+            }
         ];
     }
 });

@@ -5,7 +5,18 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor', {
     loadPath: '{url action=load}',
     controllers: ['Main'],
     models: [ 'Slots', 'Messages', 'Triggers' ],
-    views: [ 'Window', 'grid.Slots', 'grid.Messages', 'detail.Slot', 'detail.Message', 'detail.SlotWindow', 'detail.MessageWindow', 'grid.Triggers' ],
+    views: [
+        'Window',
+        'grid.Slots',
+        'grid.Messages',
+        'grid.Triggers',
+        'detail.Slot',
+        'detail.Message',
+        'detail.Trigger',
+        'detail.SlotWindow',
+        'detail.MessageWindow',
+        'detail.TriggerWindow'
+    ],
     stores: [ 'Slots', 'Messages', 'Triggers' ],
 
     /** Main Function
