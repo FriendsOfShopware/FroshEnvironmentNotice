@@ -1,3 +1,5 @@
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.Window', {
     extend: 'Enlight.app.Window',
     title: '{s name="FroshEnvironmentNoticeEditorTitle"}Environment Notices{/s}',

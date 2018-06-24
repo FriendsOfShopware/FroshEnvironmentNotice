@@ -1,3 +1,5 @@
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Slot', {
     extend:'Ext.form.Panel',
     alias:'widget.env-notice-editor-detail-slot',

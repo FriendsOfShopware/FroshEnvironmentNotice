@@ -1,3 +1,5 @@
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.SlotWindow', {
     extend: 'Enlight.app.Window',
     title: '{s name="FroshEnvironmentNoticeEditorSlotTitle"}Slot{/s}',

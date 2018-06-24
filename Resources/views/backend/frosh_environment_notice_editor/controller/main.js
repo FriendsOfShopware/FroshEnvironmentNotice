@@ -1,4 +1,5 @@
-/* TODO refactor duplicate code */
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
 
     extend: 'Ext.app.Controller',
