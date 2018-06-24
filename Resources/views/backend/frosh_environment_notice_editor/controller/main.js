@@ -16,7 +16,8 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.controller.Main', {
                     callback: function() {
                         me.mainWindow = me.getView('Window').create({
                             messagesStore: me.getStore('Messages'),
-                            slotsStore: me.getStore('Slots')
+                            slotsStore: me.getStore('Slots'),
+                            triggersStore: me.getStore('Triggers'),
                         });
                     }
                 });
