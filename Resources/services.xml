@@ -10,9 +10,9 @@
         <!-- Subscribers -->
         <service id="frosh.environment_notice.subscriber.notice_injection" class="FroshEnvironmentNotice\Subscriber\NoticeInjection">
             <tag name="shopware.event_subscriber" />
-            <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
-            <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
-            <argument type="service" id="frosh.environment_notice.repository.notice"/>
+            <argument type="service" id="frosh_environment_notice.services.conditions"/>
+            <argument type="service" id="frosh_environment_notice.services.notice_inject_actions"/>
+            <argument type="service" id="frosh.environment_notice.repository.trigger"/>
         </service>
 
         <!-- Repository -->
