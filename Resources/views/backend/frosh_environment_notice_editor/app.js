@@ -4,7 +4,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor', {
     bulkLoad: true,
     loadPath: '{url action=load}',
     controllers: ['Main'],
-    models: [ 'Slots', 'Messages' ],
+    models: [ 'Slots', 'Messages', 'Triggers' ],
     views: [ 'Window', 'grid.Slots', 'grid.Messages', 'detail.Slot', 'detail.Message', 'detail.SlotWindow', 'detail.MessageWindow' ],
     stores: [ 'Slots', 'Messages' ],
 
