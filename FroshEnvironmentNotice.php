@@ -8,6 +8,7 @@ use FroshEnvironmentNotice\Components\Bootstrap\ConditionsCollectionPass;
 use FroshEnvironmentNotice\Components\Bootstrap\NoticeInjectActionCollectionPass;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
+use FroshEnvironmentNotice\Models\Trigger;
 use Shopware\Components\Model\ModelEntity;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Components\Plugin;
@@ -24,6 +25,7 @@ class FroshEnvironmentNotice extends Plugin
     private $modelClasses = [
         Notice::class,
         Slot::class,
+        Trigger::class,
     ];
 
     /**
