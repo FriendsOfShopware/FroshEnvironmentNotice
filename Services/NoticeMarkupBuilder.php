@@ -5,6 +5,7 @@ namespace FroshEnvironmentNotice\Services;
 use Enlight_Event_EventArgs;
 use Enlight_Event_EventManager;
 use Enlight_Event_Exception;
+use Enlight_Template_Manager;
 use Enlight_View_Default;
 use FroshEnvironmentNotice\Exceptions\ViewPreparationException;
 use FroshEnvironmentNotice\Models\Notice;
@@ -32,17 +33,60 @@ class NoticeMarkupBuilder
     private $eventManager;
 
     /**
+     * @var Enlight_Template_Manager
+     */
+    private $templateManager;
+
+    /**
+     * @var Enlight_View_Default|null
+     */
+    private $view;
+
+    /**
      * NoticeMarkupBuilder constructor.
      *
      * @param LessCompiler               $lessCompiler
      * @param string                     $viewDirectory
      * @param Enlight_Event_EventManager $eventManager
+     * @param Enlight_Template_Manager   $templateManager
      */
-    public function __construct(LessCompiler $lessCompiler, string $viewDirectory, Enlight_Event_EventManager $eventManager)
-    {
+    public function __construct(
+        LessCompiler $lessCompiler,
+        string $viewDirectory,
+        Enlight_Event_EventManager $eventManager,
+        Enlight_Template_Manager $templateManager
+    ) {
         $this->lessCompiler = $lessCompiler;
         $this->viewDirectory = $viewDirectory;
         $this->eventManager = $eventManager;
+        $this->templateManager = $templateManager;
+    }
+
+    /**
+     * @return Enlight_View_Default|null
+     */
+    public function getView(): Enlight_View_Default
+    {
+        if (is_null($this->view)) {
+            return $this
+                ->setView(new Enlight_View_Default($this->templateManager))
+                ->getView()
+            ;
+        }
+
+        return $this->view;
+    }
+
+    /**
+     * @param Enlight_View_Default|null $view
+     *
+     * @return NoticeMarkupBuilder
+     */
+    public function setView(Enlight_View_Default $view): NoticeMarkupBuilder
+    {
+        $this->view = $view;
+
+        return $this;
     }
 
     /**
@@ -69,35 +113,42 @@ EOL
     }
 
     /**
-     * @param Enlight_View_Default $view
-     *
      * @throws ViewPreparationException
      */
-    public function prepareView(Enlight_View_Default $view)
+    public function prepareView()
     {
-        $view->addTemplateDir($this->viewDirectory);
+        static $isAlreadyPrepared = false;
+
+        if ($isAlreadyPrepared) {
+            return;
+        }
+
+        $this->getView()->addTemplateDir($this->viewDirectory);
 
         try {
             $args = new Enlight_Event_EventArgs([
                 'subject' => $this,
-                'view' => $view,
+                'view' => $this->getView(),
             ]);
             $this->eventManager->notify('Frosh_EnvironmentNotice_NoticeMarkupBuilder_prepareView', $args);
         } catch (Enlight_Event_Exception $e) {
             throw new ViewPreparationException($e);
         }
+
+        $isAlreadyPrepared = true;
     }
 
     /**
-     * @param Enlight_View_Default $view
-     * @param Notice[]             $notices
+     * @param Notice[] $notices
      *
      * @throws ViewPreparationException
      *
      * @return string
      */
-    public function buildInjectableHtml(Enlight_View_Default $view, array $notices): string
+    public function buildInjectableHtml(array $notices): string
     {
+        $this->prepareView();
+
         $slots = [];
 
         foreach ($notices as $notice) {
@@ -114,15 +165,17 @@ EOL
         ];
 
         try {
-            $args = new Enlight_Event_EventArgs($viewData);
-            $viewData = $this->eventManager->filter('Frosh_EnvironmentNotice_NoticeMarkupBuilder_prepareViewData', $args);
+            $args = new Enlight_Event_EventArgs();
+            $args->setReturn($viewData);
+            $args = $this->eventManager->filter('Frosh_EnvironmentNotice_NoticeMarkupBuilder_prepareViewData', $args);
+            $viewData = $args->getReturn();
         } catch (Enlight_Event_Exception $exception) {
             throw new ViewPreparationException($exception);
         }
 
-        $view->assign($viewData);
+        $this->getView()->assign($viewData);
 
-        return $view->fetch('environment_notice/notice/index.tpl');
+        return $this->getView()->fetch('environment_notice/notice/index.tpl');
     }
 
     /**
