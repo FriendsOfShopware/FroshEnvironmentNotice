@@ -97,7 +97,7 @@ class NoticeMarkupBuilder
      */
     public function buildSlots(Slot $slot, string $id)
     {
-        $filename = tempnam('/tmp', 'NMB');
+        $filename = tempnam(sys_get_temp_dir(), 'NMB');
 
         file_put_contents($filename, <<<EOL
 #{$id} {
