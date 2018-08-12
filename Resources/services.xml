@@ -13,7 +13,6 @@
             <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
             <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
             <argument type="service" id="frosh.environment_notice.repository.notice"/>
-            <argument type="string">%frosh_environment_notice.view_dir%</argument>
         </service>
 
         <!-- Repository -->
@@ -30,6 +29,8 @@
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>
         <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder">
             <argument type="service" id="oyejorge_compiler"/>
+            <argument type="string">%frosh_environment_notice.view_dir%</argument>
+            <argument type="service" id="events"/>
         </service>
     </services>
 </container>

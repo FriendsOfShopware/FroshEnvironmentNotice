@@ -2,6 +2,12 @@
 
 namespace FroshEnvironmentNotice\Services;
 
+use Enlight_Event_EventArgs;
+use Enlight_Event_EventManager;
+use Enlight_Event_Exception;
+use Enlight_View_Default;
+use FroshEnvironmentNotice\Exceptions\ViewPreparationException;
+use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
 use Shopware\Components\Theme\LessCompiler;
 
@@ -16,13 +22,27 @@ class NoticeMarkupBuilder
     private $lessCompiler;
 
     /**
+     * @var string
+     */
+    private $viewDirectory;
+
+    /**
+     * @var Enlight_Event_EventManager
+     */
+    private $eventManager;
+
+    /**
      * NoticeMarkupBuilder constructor.
      *
-     * @param LessCompiler $lessCompiler
+     * @param LessCompiler               $lessCompiler
+     * @param string                     $viewDirectory
+     * @param Enlight_Event_EventManager $eventManager
      */
-    public function __construct(LessCompiler $lessCompiler)
+    public function __construct(LessCompiler $lessCompiler, string $viewDirectory, Enlight_Event_EventManager $eventManager)
     {
         $this->lessCompiler = $lessCompiler;
+        $this->viewDirectory = $viewDirectory;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -46,5 +66,78 @@ EOL
         $this->lessCompiler->compile($filename, '/');
 
         return $this->lessCompiler->get();
+    }
+
+    /**
+     * @param Enlight_View_Default $view
+     *
+     * @throws ViewPreparationException
+     */
+    public function prepareView(Enlight_View_Default $view)
+    {
+        $view->addTemplateDir($this->viewDirectory);
+
+        try {
+            $args = new Enlight_Event_EventArgs([
+                'subject' => $this,
+                'view' => $view,
+            ]);
+            $this->eventManager->notify('Frosh_EnvironmentNotice_NoticeMarkupBuilder_prepareView', $args);
+        } catch (Enlight_Event_Exception $e) {
+            throw new ViewPreparationException($e);
+        }
+    }
+
+    /**
+     * @param Enlight_View_Default $view
+     * @param Notice[]             $notices
+     *
+     * @return string
+     */
+    public function buildInjectableHtml(Enlight_View_Default $view, array $notices): string
+    {
+        $slots = [];
+
+        foreach ($notices as $notice) {
+            if (!array_key_exists($notice->getSlot()->getId(), $slots)) {
+                $slots[$notice->getSlot()->getId()] = $this->serializeSlot($notice->getSlot(), $notices);
+            }
+        }
+
+        $view->assign('environment_notice', [
+            'slots' => array_values($slots),
+            'notices' => array_map([$this, 'serializeNotice'], $notices),
+        ]);
+
+        return $view->fetch('environment_notice/notice/index.tpl');
+    }
+
+    /**
+     * @param Slot     $slot
+     * @param Notice[] $notices
+     *
+     * @return array
+     */
+    protected function serializeSlot(Slot $slot, array $notices): array
+    {
+        /** @var array $result */
+        $result = $slot->jsonSerialize();
+
+        $result['css'] = $this->buildSlots($slot, 'slot-' . $slot->getId());
+        $result['notices'] = array_map([$this, 'serializeNotice'], array_values(array_filter($notices, function (Notice $notice) use ($slot) {
+            return $notice->getSlot()->getId() === $slot->getId();
+        })));
+
+        return $result;
+    }
+
+    /**
+     * @param Notice $notice
+     *
+     * @return array
+     */
+    protected function serializeNotice(Notice $notice): array
+    {
+        return $notice->jsonSerialize();
     }
 }
