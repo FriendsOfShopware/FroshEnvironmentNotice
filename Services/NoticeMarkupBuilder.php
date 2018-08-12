@@ -26,20 +26,6 @@ class NoticeMarkupBuilder
     }
 
     /**
-     * @param array  $styleRules
-     * @param string $message
-     *
-     * @return string
-     */
-    public function buildNoticeInSlot(string $message, Slot $slot): string
-    {
-        $id = preg_replace('/([^a-zA-Z0-9]|^[0-9]*)/i', '', $message . $slot->getName());
-        $message = nl2br($message);
-
-        return "<style>{$this->buildSlots($slot, $id)}</style><div id=\"{$id}\">{$message}</div>";
-    }
-
-    /**
      * @param Slot   $slot
      * @param string $id
      *
@@ -60,16 +46,5 @@ EOL
         $this->lessCompiler->compile($filename, '/');
 
         return $this->lessCompiler->get();
-    }
-
-    /**
-     * @param string $property
-     * @param string $value
-     *
-     * @return string
-     */
-    public function buildStyleSetter(string $property, string $value): string
-    {
-        return "{$property}: {$value}";
     }
 }

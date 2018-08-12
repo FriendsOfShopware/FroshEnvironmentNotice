@@ -29,17 +29,28 @@ class NoticeInjection implements SubscriberInterface
     private $noticeRepository;
 
     /**
+     * @var string
+     */
+    private $viewDirectory;
+
+    /**
      * NoticeInjection constructor.
      *
      * @param ModifyHtmlText      $htmlTextModifier
      * @param NoticeMarkupBuilder $markupBuilder
      * @param ModelRepository     $noticeRepository
+     * @param string              $viewDirectory
      */
-    public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder, ModelRepository $noticeRepository)
-    {
+    public function __construct(
+        ModifyHtmlText $htmlTextModifier,
+        NoticeMarkupBuilder $markupBuilder,
+        ModelRepository $noticeRepository,
+        string $viewDirectory
+    ) {
         $this->htmlTextModifier = $htmlTextModifier;
         $this->markupBuilder = $markupBuilder;
         $this->noticeRepository = $noticeRepository;
+        $this->viewDirectory = $viewDirectory;
     }
 
     /**
@@ -71,34 +82,49 @@ class NoticeInjection implements SubscriberInterface
             'name' => $module,
         ]);
 
+        if (empty($notices)) {
+            return;
+        }
+
         $slots = [];
 
         foreach ($notices as $notice) {
-            if (array_key_exists($notice->getSlot()->getId(), $slots)) {
-                $slots[$notice->getSlot()->getId()]['items'][] = $notice;
-            } else {
-                $slots[$notice->getSlot()->getId()] = [
-                    'slot' => $notice->getSlot(),
-                    'items' => [$notice],
-                ];
+            if (!array_key_exists($notice->getSlot()->getId(), $slots)) {
+                $slots[$notice->getSlot()->getId()] = $this->serializeSlot($notice->getSlot(), $notices);
             }
         }
 
-        foreach ($slots as $slot) {
-            /** @var Slot $slotItem */
-            $slotItem = $slot['slot'];
+        $bootstrap->Action()->View()->addTemplateDir($this->viewDirectory);
+        $bootstrap->Action()->View()->assign('environment_notice', [
+            'slots' => array_values($slots),
+            'notices' => array_map([$this, 'serializeNotice'], $notices),
+        ]);
+        $noticeData = $bootstrap->Action()->View()->fetch('environment_notice/notice/index.tpl');
 
-            $messages = array_map(function (Notice $notice) {
-                return $notice->getMessage();
-            }, $slot['items']);
+        $args->setReturn(
+            $this->htmlTextModifier->insertAfterTag(
+                'body',
+                $noticeData,
+                $args->getReturn()
+            )
+        );
+    }
 
-            $args->setReturn(
-                $this->htmlTextModifier->insertAfterTag(
-                    'body',
-                    $this->markupBuilder->buildNoticeInSlot(join(PHP_EOL, $messages), $slotItem),
-                    $args->getReturn()
-                )
-            );
-        }
+    protected function serializeSlot(Slot $slot, array $notices): array
+    {
+        /** @var array $result */
+        $result = $slot->jsonSerialize();
+
+        $result['css'] = $this->markupBuilder->buildSlots($slot, 'slot-' . $slot->getId());
+        $result['notices'] = array_map([$this, 'serializeNotice'], array_values(array_filter($notices, function (Notice $notice) use ($slot) {
+            return $notice->getSlot()->getId() === $slot->getId();
+        })));
+
+        return $result;
+    }
+
+    protected function serializeNotice(Notice $notice): array
+    {
+        return $notice->jsonSerialize();
     }
 }
