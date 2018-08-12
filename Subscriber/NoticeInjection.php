@@ -81,16 +81,15 @@ class NoticeInjection implements SubscriberInterface
 
         try {
             $this->markupBuilder->prepareView($bootstrap->Action()->View());
+            $args->setReturn(
+                $this->htmlTextModifier->insertAfterTag(
+                    'body',
+                    $this->markupBuilder->buildInjectableHtml($bootstrap->Action()->View(), $notices),
+                    $args->getReturn()
+                )
+            );
         } catch (ViewPreparationException $exception) {
             // TODO log it
         }
-
-        $args->setReturn(
-            $this->htmlTextModifier->insertAfterTag(
-                'body',
-                $this->markupBuilder->buildInjectableHtml($bootstrap->Action()->View(), $notices),
-                $args->getReturn()
-            )
-        );
     }
 }

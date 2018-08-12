@@ -92,6 +92,8 @@ EOL
      * @param Enlight_View_Default $view
      * @param Notice[]             $notices
      *
+     * @throws ViewPreparationException
+     *
      * @return string
      */
     public function buildInjectableHtml(Enlight_View_Default $view, array $notices): string
@@ -104,10 +106,21 @@ EOL
             }
         }
 
-        $view->assign('environment_notice', [
-            'slots' => array_values($slots),
-            'notices' => array_map([$this, 'serializeNotice'], $notices),
-        ]);
+        $viewData = [
+            'environment_notice' => [
+                'slots' => array_values($slots),
+                'notices' => array_map([$this, 'serializeNotice'], $notices),
+            ],
+        ];
+
+        try {
+            $args = new Enlight_Event_EventArgs($viewData);
+            $viewData = $this->eventManager->filter('Frosh_EnvironmentNotice_NoticeMarkupBuilder_prepareViewData', $args);
+        } catch (Enlight_Event_Exception $exception) {
+            throw new ViewPreparationException($exception);
+        }
+
+        $view->assign($viewData);
 
         return $view->fetch('environment_notice/notice/index.tpl');
     }
