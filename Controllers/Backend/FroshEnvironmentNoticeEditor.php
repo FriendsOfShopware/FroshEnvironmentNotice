@@ -22,6 +22,6 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditor extends Shopware
 
     public function indexAction()
     {
-        $this->View()->loadTemplate("backend/frosh_environment_notice_editor/app.js");
+        $this->View()->loadTemplate('backend/frosh_environment_notice_editor/app.js');
     }
 }

@@ -73,7 +73,7 @@ class FroshEnvironmentNotice extends Plugin
                 return (new Slot())->fromArray($data);
             }, $datas);
             array_walk($models, [$this->getModelManager(), 'persist']);
-            /** @noinspection PhpUnhandledExceptionInspection */
+            /* @noinspection PhpUnhandledExceptionInspection */
             $this->getModelManager()->flush($models);
         }
     }
