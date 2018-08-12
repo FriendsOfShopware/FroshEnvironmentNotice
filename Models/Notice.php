@@ -133,7 +133,7 @@ class Notice extends ModelEntity implements JsonSerializable
             'id' => $this->getId(),
             'message' => $this->getMessage(),
             'name' => $this->getName(),
-            'slot' => $this->getSlot(),
+            'slotId' => $this->getSlot()->getId(),
         ];
     }
 }
