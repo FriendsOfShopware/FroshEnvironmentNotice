@@ -36,7 +36,7 @@ class Slot extends ModelEntity implements JsonSerializable
     /**
      * @var string
      *
-     * @ORM\Column(name="style", type="string", nullable=false)
+     * @ORM\Column(name="style", type="string", nullable=false, length=10000)
      */
     private $style;
 

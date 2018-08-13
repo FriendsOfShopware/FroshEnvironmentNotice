@@ -10,7 +10,12 @@ use Enlight_View_Default;
 use FroshEnvironmentNotice\Exceptions\ViewPreparationException;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
+use Shopware\Components\DependencyInjection\Container;
+use Shopware\Components\Model\ModelManager;
+use Shopware\Components\Theme\Compiler;
 use Shopware\Components\Theme\LessCompiler;
+use Shopware\Models\Shop\Repository;
+use Shopware\Models\Shop\Shop;
 
 /**
  * Class NoticeMarkupBuilder
@@ -43,23 +48,47 @@ class NoticeMarkupBuilder
     private $view;
 
     /**
+     * @var Container
+     */
+    private $container;
+
+    /**
+     * @var Compiler
+     */
+    private $themeCompiler;
+
+    /**
+     * @var ModelManager
+     */
+    private $modelManager;
+
+    /**
      * NoticeMarkupBuilder constructor.
      *
      * @param LessCompiler               $lessCompiler
      * @param string                     $viewDirectory
      * @param Enlight_Event_EventManager $eventManager
      * @param Enlight_Template_Manager   $templateManager
+     * @param Compiler                   $themeCompiler
+     * @param Container                  $container
+     * @param ModelManager               $modelManager
      */
     public function __construct(
         LessCompiler $lessCompiler,
         string $viewDirectory,
         Enlight_Event_EventManager $eventManager,
-        Enlight_Template_Manager $templateManager
+        Enlight_Template_Manager $templateManager,
+        Compiler $themeCompiler,
+        Container $container,
+        ModelManager $modelManager
     ) {
         $this->lessCompiler = $lessCompiler;
         $this->viewDirectory = $viewDirectory;
         $this->eventManager = $eventManager;
         $this->templateManager = $templateManager;
+        $this->themeCompiler = $themeCompiler;
+        $this->container = $container;
+        $this->modelManager = $modelManager;
     }
 
     /**
@@ -87,29 +116,6 @@ class NoticeMarkupBuilder
         $this->view = $view;
 
         return $this;
-    }
-
-    /**
-     * @param Slot   $slot
-     * @param string $id
-     *
-     * @return string
-     */
-    public function buildSlots(Slot $slot, string $id)
-    {
-        $filename = tempnam(sys_get_temp_dir(), 'NMB');
-
-        file_put_contents($filename, <<<EOL
-#{$id} {
-    {$slot->getStyle()}
-}
-EOL
-);
-
-        $this->lessCompiler->reset();
-        $this->lessCompiler->compile($filename, '/');
-
-        return $this->lessCompiler->get();
     }
 
     /**
@@ -179,8 +185,58 @@ EOL
     }
 
     /**
+     * @param Slot   $slot
+     * @param string $id
+     *
+     * @throws ViewPreparationException
+     *
+     * @return string
+     */
+    protected function buildSlotLess(Slot $slot, string $id)
+    {
+        /** @var Shop $shop */
+        $shop = null;
+        if ($this->container->has('shop')) {
+            $shop = $this->container->get('shop');
+        } else {
+            /** @var Repository $shopRepository */
+            $shopRepository = $this->modelManager->getRepository(Shop::class);
+            $shop = $shopRepository->getActiveDefault();
+        }
+
+        try {
+            $variables = $this->themeCompiler->getThemeConfiguration($shop)->getConfig();
+        } catch (\Exception $exception) {
+            throw new ViewPreparationException($exception);
+        }
+
+        $filename = tempnam(sys_get_temp_dir(), 'NMB');
+
+        file_put_contents($filename, <<<EOL
+/**
+ * TODO add mixin support
+ * @import "variables";
+ * @import "mixins";
+ **/
+
+#{$id} {
+    {$slot->getStyle()}
+}
+EOL
+);
+
+        $this->lessCompiler->reset();
+        $this->lessCompiler->setVariables($variables);
+        $this->lessCompiler->compile($filename, '/');
+
+        return $this->lessCompiler->get();
+    }
+
+    /**
      * @param Slot     $slot
      * @param Notice[] $notices
+     *
+     * @throws ViewPreparationException
      *
      * @return array
      */
@@ -189,7 +245,7 @@ EOL
         /** @var array $result */
         $result = $slot->jsonSerialize();
 
-        $result['css'] = $this->buildSlots($slot, 'slot-' . $slot->getId());
+        $result['css'] = $this->buildSlotLess($slot, 'slot-' . $slot->getId());
         $result['notices'] = array_map([$this, 'serializeNotice'], array_values(array_filter($notices, function (Notice $notice) use ($slot) {
             return $notice->getSlot()->getId() === $slot->getId();
         })));
