@@ -4,14 +4,18 @@ namespace FroshEnvironmentNotice;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Tools\SchemaTool;
+use FroshEnvironmentNotice\Components\Bootstrap\ConditionsCollectionPass;
+use FroshEnvironmentNotice\Components\Bootstrap\NoticeInjectActionCollectionPass;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
+use FroshEnvironmentNotice\Models\Trigger;
 use Shopware\Components\Model\ModelEntity;
 use Shopware\Components\Model\ModelManager;
 use Shopware\Components\Plugin;
 use Shopware\Components\Plugin\Context\InstallContext;
 use Shopware\Components\Plugin\Context\UninstallContext;
 use Shopware\Components\Plugin\Context\UpdateContext;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class FroshEnvironmentNotice extends Plugin
 {
@@ -21,6 +25,7 @@ class FroshEnvironmentNotice extends Plugin
     private $modelClasses = [
         Notice::class,
         Slot::class,
+        Trigger::class,
     ];
 
     /**
@@ -52,6 +57,16 @@ class FroshEnvironmentNotice extends Plugin
         $this->uninstallSchema();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+        $container->addCompilerPass(new ConditionsCollectionPass());
+        $container->addCompilerPass(new NoticeInjectActionCollectionPass());
+    }
+
     private function installSchema()
     {
         (new SchemaTool($this->getModelManager()))->updateSchema($this->getModelMetadata(), true);
@@ -73,7 +88,23 @@ class FroshEnvironmentNotice extends Plugin
                 return (new Slot())->fromArray($data);
             }, $datas);
             array_walk($models, [$this->getModelManager(), 'persist']);
-            /** @noinspection PhpUnhandledExceptionInspection */
+            /* @noinspection PhpUnhandledExceptionInspection */
+            $this->getModelManager()->flush($models);
+        }
+
+        $amountOfTrigger = $this->getModelManager()
+            ->getRepository(Trigger::class)
+            ->createQueryBuilder('slot')
+            ->getMaxResults();
+
+        if (!$amountOfTrigger) {
+            $datas = json_decode(file_get_contents($this->getPath() . '/Resources/seeds/triggers.json'), true);
+            /** @var ModelEntity[] $models */
+            $models = array_map(function ($data) {
+                return (new Trigger())->fromArray($data);
+            }, $datas);
+            array_walk($models, [$this->getModelManager(), 'persist']);
+            /* @noinspection PhpUnhandledExceptionInspection */
             $this->getModelManager()->flush($models);
         }
     }

@@ -4,10 +4,16 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use FroshEnvironmentNotice\Models\Notice;
 use FroshEnvironmentNotice\Models\Slot;
+use FroshEnvironmentNotice\Models\Trigger;
 use Shopware\Components\CSRFWhitelistAware;
 use Shopware\Components\Model\ModelEntity;
 use Shopware\Components\Model\ModelRepository;
 
+/**
+ * Class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi
+ * TODO use namespace
+ * TODO refactor class by splitting into own resources
+ */
 class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlight_Controller_Action implements CSRFWhitelistAware
 {
     /**
@@ -19,6 +25,11 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
      * @var ModelRepository
      */
     private $slotRepository;
+
+    /**
+     * @var ModelRepository
+     */
+    private $triggerRepository;
 
     /**
      * {@inheritdoc}
@@ -36,6 +47,11 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
             'ajaxSlotsInsert',
             'ajaxSlotsUpdate',
             'ajaxSlotsDelete',
+            'ajaxTriggersGet',
+            'ajaxTriggersList',
+            'ajaxTriggersInsert',
+            'ajaxTriggersUpdate',
+            'ajaxTriggersDelete',
         ];
     }
 
@@ -47,6 +63,7 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
         $this->Request()->replacePost(json_decode(file_get_contents('php://input'), true));
         $this->noticeRepository = $this->getModelManager()->getRepository(Notice::class);
         $this->slotRepository = $this->getModelManager()->getRepository(Slot::class);
+        $this->triggerRepository = $this->getModelManager()->getRepository(Trigger::class);
     }
 
     public function postDispatch()
@@ -123,6 +140,31 @@ class Shopware_Controllers_Backend_FroshEnvironmentNoticeEditorApi extends Enlig
     public function ajaxSlotsDeleteAction()
     {
         $this->deleteActionGeneric($this->slotRepository);
+    }
+
+    public function ajaxTriggersListAction()
+    {
+        $this->listActionGeneric($this->triggerRepository);
+    }
+
+    public function ajaxTriggersGetAction()
+    {
+        $this->getActionGeneric($this->triggerRepository);
+    }
+
+    public function ajaxTriggersInsertAction()
+    {
+        $this->insertActionGeneric(Trigger::class);
+    }
+
+    public function ajaxTriggersUpdateAction()
+    {
+        $this->updateActionGeneric($this->triggerRepository);
+    }
+
+    public function ajaxTriggersDeleteAction()
+    {
+        $this->deleteActionGeneric($this->triggerRepository);
     }
 
     /**

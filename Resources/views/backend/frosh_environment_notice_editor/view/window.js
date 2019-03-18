@@ -1,3 +1,5 @@
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.Window', {
     extend: 'Enlight.app.Window',
     title: '{s name="FroshEnvironmentNoticeEditorTitle"}Environment Notices{/s}',
@@ -19,6 +21,12 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.Window', {
                         title: '{s name="FroshEnvironmentNoticeEditorMessagesGridTitle"}Messages{/s}',
                         xtype: 'env-notice-editor-messages-grid',
                         store: me.messagesStore,
+                        flex: 1
+                    },
+                    {
+                        title: '{s name="FroshEnvironmentNoticeEditorTriggersGridTitle"}Triggers{/s}',
+                        xtype: 'env-notice-editor-triggers-grid',
+                        store: me.triggersStore,
                         flex: 1
                     },
                     {

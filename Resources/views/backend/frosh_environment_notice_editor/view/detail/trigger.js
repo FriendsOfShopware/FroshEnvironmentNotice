@@ -1,8 +1,8 @@
 //{namespace name=backend/plugins/frosh_environment_notice_editor}
 //
-Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Slot', {
+Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Trigger', {
     extend:'Ext.form.Panel',
-    alias:'widget.env-notice-editor-detail-slot',
+    alias:'widget.env-notice-editor-detail-trigger',
     collapsible: false,
     bodyPadding: 10,
     split: false,
@@ -27,17 +27,6 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Slot', {
                 items: me.getButtons()
             }
         ];
-    
-        me.editorField = Ext.create('Shopware.form.field.CodeMirror', {
-            fieldLabel: '{s name="FroshEnvironmentNoticeEditorSlotStyleLabel"}Style{/s}',
-            xtype: 'codemirrorfield',
-            mode: 'css',
-            labelAlign: 'top',
-            anchor: '100%',
-            name: 'style',
-            flex: 1,
-            allowBlank: true
-        });
         
         me.items = me.getItems();
         
@@ -48,13 +37,33 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.Slot', {
         var me = this;
         return [
             {
-                fieldLabel: '{s name="FroshEnvironmentNoticeEditorSlotNameLabel"}Name{/s}',
-                labelWidth: 50,
+                fieldLabel: '{s name="FroshEnvironmentNoticeEditorTriggerConditionTypeLabel"}Type of condition{/s}',
+                labelWidth: 150,
                 anchor: '100%',
-                name: 'name',
+                name: 'conditionType',
                 allowBlank: false
             },
-            me.editorField
+            {
+                fieldLabel: '{s name="FroshEnvironmentNoticeEditorTriggerConditionConfigurationLabel"}Condition configuration{/s}',
+                labelWidth: 150,
+                anchor: '100%',
+                name: 'conditionConfiguration',
+                allowBlank: false
+            },
+            {
+                fieldLabel: '{s name="FroshEnvironmentNoticeEditorTriggerActionTypeLabel"}Type of action{/s}',
+                labelWidth: 150,
+                anchor: '100%',
+                name: 'actionType',
+                allowBlank: false
+            },
+            {
+                fieldLabel: '{s name="FroshEnvironmentNoticeEditorTriggerActionConfigurationLabel"}Action configuration{/s}',
+                labelWidth: 150,
+                anchor: '100%',
+                name: 'actionConfiguration',
+                allowBlank: false
+            }
         ];
     },
     getButtons : function()

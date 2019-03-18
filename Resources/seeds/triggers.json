@@ -1,0 +1,14 @@
+[
+  {
+    "conditionType": "FroshEnvironmentNotice\\Services\\Conditions\\RequestedModuleCondition",
+    "conditionConfiguration": "{\"module\": \"frontend\"}",
+    "actionType": "FroshEnvironmentNotice\\Services\\NoticeInjectActions\\HtmlResponseSlotNoticeInjectAction",
+    "actionConfiguration": "{\"name\": \"frontend\"}"
+  },
+  {
+    "conditionType": "FroshEnvironmentNotice\\Services\\Conditions\\RequestedModuleCondition",
+    "conditionConfiguration": "{\"module\": \"backend\"}",
+    "actionType": "FroshEnvironmentNotice\\Services\\NoticeInjectActions\\HtmlResponseSlotNoticeInjectAction",
+    "actionConfiguration": "{\"name\": \"backend\"}"
+  }
+]

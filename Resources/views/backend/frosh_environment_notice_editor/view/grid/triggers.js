@@ -1,12 +1,12 @@
 //{namespace name=backend/plugins/frosh_environment_notice_editor}
 //
-Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
+Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Triggers', {
     extend:'Ext.grid.Panel',
     border: false,
-    alias:'widget.env-notice-editor-slots-grid',
+    alias:'widget.env-notice-editor-triggers-grid',
     region:'center',
     autoScroll:true,
-    title: '{s name="FroshEnvironmentNoticeEditorSlotsGridTitle"}Slots{/s}',
+    title: '{s name="FroshEnvironmentNoticeEditorTriggersGridTitle"}Triggers{/s}',
     initComponent:function () {
         var me = this;
         me.columns = me.getColumns();
@@ -26,9 +26,24 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
 
         return [
             {
-                header: '{s name="FroshEnvironmentNoticeEditorSlotNameLabel"}Name{/s}',
+                header: '{s name="FroshEnvironmentNoticeEditorTriggerConditionTypeLabel"}Type of condition{/s}',
                 flex: 1,
-                dataIndex: 'name'
+                dataIndex: 'conditionType'
+            },
+            {
+                header: '{s name="FroshEnvironmentNoticeEditorTriggerConditionConfigurationLabel"}Condition configuration{/s}',
+                flex: 1,
+                dataIndex: 'conditionConfiguration'
+            },
+            {
+                header: '{s name="FroshEnvironmentNoticeEditorTriggerActionTypeLabel"}Type of action{/s}',
+                flex: 1,
+                dataIndex: 'actionType'
+            },
+            {
+                header: '{s name="FroshEnvironmentNoticeEditorTriggerActionConfigurationLabel"}Action configuration{/s}',
+                flex: 1,
+                dataIndex: 'actionConfiguration'
             },
             {
                 xtype: 'actioncolumn',
@@ -50,7 +65,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
                     }
                 },
                 handler:function (view, rowIndex, colIndex, item) {
-                    me.fireEvent('openSlotDetail', view, rowIndex, colIndex, item);
+                    me.fireEvent('openTriggerDetail', view, rowIndex, colIndex, item);
                 }
             },
             {
@@ -62,7 +77,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
                     }
                 },
                 handler:function (view, rowIndex, colIndex, item) {
-                    me.fireEvent('deleteSlot', view, rowIndex, colIndex, item);
+                    me.fireEvent('deleteTrigger', view, rowIndex, colIndex, item);
                 }
             }
         ];
@@ -75,7 +90,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.grid.Slots', {
                 text: '{s name="FroshEnvironmentNoticeEditorAdd"}Add{/s}',
                 scope: me,
                 iconCls: 'sprite-plus-circle-frame',
-                action: 'addSlot'
+                action: 'addTrigger'
             }
         ];
     }

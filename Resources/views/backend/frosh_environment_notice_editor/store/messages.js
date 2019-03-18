@@ -1,7 +1,9 @@
+//{namespace name=backend/plugins/frosh_environment_notice_editor}
+//
 Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.store.Messages', {
     extend: 'Ext.data.Store',
     remoteFilter: true,
-    autoLoad : false,
+    autoLoad : true,
     model : 'Shopware.apps.FroshEnvironmentNoticeEditor.model.Messages',
     pageSize: 20,
     proxy: {

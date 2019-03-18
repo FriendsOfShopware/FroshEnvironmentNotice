@@ -1,9 +1,9 @@
 //{namespace name=backend/plugins/frosh_environment_notice_editor}
 //
-Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.SlotWindow', {
+Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.TriggerWindow', {
     extend: 'Enlight.app.Window',
-    title: '{s name="FroshEnvironmentNoticeEditorSlotTitle"}Slot{/s}',
-    alias: 'widget.env-notice-editor-detail-message-window',
+    title: '{s name="FroshEnvironmentNoticeEditorTriggerTitle"}Trigger{/s}',
+    alias: 'widget.env-notice-editor-detail-trigger-window',
     border: false,
     autoShow: true,
     layout: 'fit',
@@ -15,7 +15,7 @@ Ext.define('Shopware.apps.FroshEnvironmentNoticeEditor.view.detail.SlotWindow', 
         
         me.items = [
             {
-                xtype: 'env-notice-editor-detail-slot',
+                xtype: 'env-notice-editor-detail-trigger',
                 record: me.record
             }
         ];

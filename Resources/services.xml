@@ -10,9 +10,9 @@
         <!-- Subscribers -->
         <service id="frosh.environment_notice.subscriber.notice_injection" class="FroshEnvironmentNotice\Subscriber\NoticeInjection">
             <tag name="shopware.event_subscriber" />
-            <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
-            <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
-            <argument type="service" id="frosh.environment_notice.repository.notice"/>
+            <argument type="service" id="frosh_environment_notice.services.conditions"/>
+            <argument type="service" id="frosh_environment_notice.services.notice_inject_actions"/>
+            <argument type="service" id="frosh.environment_notice.repository.trigger"/>
         </service>
 
         <!-- Repository -->
@@ -24,11 +24,31 @@
             <factory service="models" method="getRepository"/>
             <argument type="string">FroshEnvironmentNotice\Models\Slot</argument>
         </service>
+        <service id="frosh.environment_notice.repository.trigger" class="Shopware\Components\Model\ModelRepository">
+            <factory service="models" method="getRepository"/>
+            <argument type="string">FroshEnvironmentNotice\Models\Trigger</argument>
+        </service>
 
         <!-- Services -->
         <service id="frosh.environment_notice.services.modify_html_text" class="FroshEnvironmentNotice\Services\ModifyHtmlText"/>
         <service id="frosh.environment_notice.services.notice_markup_builder" class="FroshEnvironmentNotice\Services\NoticeMarkupBuilder">
             <argument type="service" id="oyejorge_compiler"/>
+        </service>
+        <service id="frosh_environment_notice.services.conditions" class="Doctrine\Common\Collections\ArrayCollection">
+            <argument type="collection"/>
+        </service>
+        <service id="frosh_environment_notice.services.notice_inject_actions" class="Doctrine\Common\Collections\ArrayCollection">
+            <argument type="collection"/>
+        </service>
+        <service id="frosh_environment_notice.services.conditions.requested_module_condition" class="FroshEnvironmentNotice\Services\Conditions\RequestedModuleCondition">
+            <tag name="frosh_environment_notice.condition"/>
+            <argument type="service" id="service_container"/>
+        </service>
+        <service class="FroshEnvironmentNotice\Services\NoticeInjectActions\HtmlResponseSlotNoticeInjectAction" id="frosh_environment_notice.services.notice_inject_actions.html_response_slot_notice_inject_action">
+            <tag name="frosh_environment_notice.notice_inject_action"/>
+            <argument type="service" id="frosh.environment_notice.services.modify_html_text"/>
+            <argument type="service" id="frosh.environment_notice.services.notice_markup_builder"/>
+            <argument type="service" id="frosh.environment_notice.repository.notice"/>
         </service>
     </services>
 </container>

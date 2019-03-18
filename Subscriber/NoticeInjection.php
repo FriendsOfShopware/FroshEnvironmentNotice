@@ -2,44 +2,47 @@
 
 namespace FroshEnvironmentNotice\Subscriber;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Enlight\Event\SubscriberInterface;
 use Enlight_Controller_Plugins_ViewRenderer_Bootstrap;
 use Enlight_Event_EventArgs;
-use FroshEnvironmentNotice\Models\Notice;
-use FroshEnvironmentNotice\Models\Slot;
-use FroshEnvironmentNotice\Services\ModifyHtmlText;
-use FroshEnvironmentNotice\Services\NoticeMarkupBuilder;
+use FroshEnvironmentNotice\Interfaces\ConditionInterface;
+use FroshEnvironmentNotice\Interfaces\NoticeInjectActionInterface;
+use FroshEnvironmentNotice\Models\Trigger;
 use Shopware\Components\Model\ModelRepository;
 
 class NoticeInjection implements SubscriberInterface
 {
     /**
-     * @var ModifyHtmlText
+     * @var ConditionInterface[]
      */
-    private $htmlTextModifier;
+    private $conditions;
 
     /**
-     * @var NoticeMarkupBuilder
+     * @var NoticeInjectActionInterface[]
      */
-    private $markupBuilder;
+    private $noticeInjectActions;
 
     /**
      * @var ModelRepository
      */
-    private $noticeRepository;
+    private $triggerRepository;
 
     /**
      * NoticeInjection constructor.
      *
-     * @param ModifyHtmlText      $htmlTextModifier
-     * @param NoticeMarkupBuilder $markupBuilder
-     * @param ModelRepository     $noticeRepository
+     * @param ArrayCollection $conditions
+     * @param ArrayCollection $noticeInjectActions
+     * @param ModelRepository $triggerRepository
      */
-    public function __construct(ModifyHtmlText $htmlTextModifier, NoticeMarkupBuilder $markupBuilder, ModelRepository $noticeRepository)
-    {
-        $this->htmlTextModifier = $htmlTextModifier;
-        $this->markupBuilder = $markupBuilder;
-        $this->noticeRepository = $noticeRepository;
+    public function __construct(
+        ArrayCollection $conditions,
+        ArrayCollection $noticeInjectActions,
+        ModelRepository $triggerRepository
+    ) {
+        $this->conditions = $conditions->toArray();
+        $this->noticeInjectActions = $noticeInjectActions->toArray();
+        $this->triggerRepository = $triggerRepository;
     }
 
     /**
@@ -62,43 +65,49 @@ class NoticeInjection implements SubscriberInterface
 
         $module = strtolower($bootstrap->Front()->Request()->getModuleName());
 
-        if ($module === 'widget') {
-            return;
+        /** @var Trigger $trigger */
+        foreach ($this->triggerRepository->findAll() as $trigger) {
+            if (!is_null($condition = $this->getCondition($trigger->getConditionType()))) {
+                /** @var array $conditionConfiguration */
+                $conditionConfiguration = json_decode($trigger->getConditionConfiguration(), true);
+                if ($condition->isMet($conditionConfiguration)
+                    && !is_null($action = $this->getNoticeInjectAction($trigger->getActionType()))) {
+                    $actionConfiguration = json_decode($trigger->getActionConfiguration(), true);
+                    $args->setReturn($action->injectNotice($actionConfiguration, $args->getReturn()));
+                }
+            }
         }
+    }
 
-        /** @var Notice[] $notices */
-        $notices = $this->noticeRepository->findBy([
-            'name' => $module,
-        ]);
-
-        $slots = [];
-
-        foreach ($notices as $notice) {
-            if (array_key_exists($notice->getSlot()->getId(), $slots)) {
-                $slots[$notice->getSlot()->getId()]['items'][] = $notice;
-            } else {
-                $slots[$notice->getSlot()->getId()] = [
-                    'slot' => $notice->getSlot(),
-                    'items' => [$notice],
-                ];
+    /**
+     * @param string $conditionType
+     *
+     * @return ConditionInterface|null
+     */
+    protected function getCondition(string $conditionType)
+    {
+        foreach ($this->conditions as $condition) {
+            if (is_a($condition, $conditionType)) {
+                return $condition;
             }
         }
 
-        foreach ($slots as $slot) {
-            /** @var Slot $slotItem */
-            $slotItem = $slot['slot'];
+        return null;
+    }
 
-            $messages = array_map(function (Notice $notice) {
-                return $notice->getMessage();
-            }, $slot['items']);
-
-            $args->setReturn(
-                $this->htmlTextModifier->insertAfterTag(
-                    'body',
-                    $this->markupBuilder->buildNoticeInSlot(join(PHP_EOL, $messages), $slotItem),
-                    $args->getReturn()
-                )
-            );
+    /**
+     * @param string $actionType
+     *
+     * @return NoticeInjectActionInterface|null
+     */
+    protected function getNoticeInjectAction(string $actionType)
+    {
+        foreach ($this->noticeInjectActions as $noticeInjectAction) {
+            if (is_a($noticeInjectAction, $actionType)) {
+                return $noticeInjectAction;
+            }
         }
+
+        return null;
     }
 }
